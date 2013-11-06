@@ -1,90 +1,67 @@
 #include "secureOps.h"
+#include "shares.h"
 
 #include <stdlib.h>
 
-#include <stdio.h>
-
-
-void refresh(byte a_share[], int order) {
+void secAdd(byte a[], byte b[], byte r[], int n) {
   int i;
-  for(i = 1; i < order; i++) {
-    byte tmp = rand();
-    a_share[i] ^= tmp;
-    a_share[0] ^= tmp;
+  for(i = 0; i < n; i++) {
+    r[i] = a[i] ^ b[i];
   }
 }
 
-void secAdd(byte a_shares[], byte b_shares[], byte r_shares[], int order) {
+void secSquare(byte a[], byte r[], int n) {
   int i;
-  for(i = 0; i < order; i++) {
-    r_shares[i] = a_shares[i] ^ b_shares[i];
+  for(i = 0; i < n; i++) {
+    r[i] = square(a[i]);
   }
 }
 
-void secSquare(byte a_shares[], byte r_shares[], int order) {
-  int i;
-  for(i = 0; i < order; i++) {
-    r_shares[i] = square(a_shares[i]);
-  }
-}
-
-void secMult(byte a_shares[], byte b_shares[], byte r_shares[], int order) {
+void secMult(byte a[], byte b[], byte r[], int n) {
   int i, j;
-  byte r[order][order];
-  for(i = 0; i < order; i++) {
-      for(j = i+1; j < order; j++) {
+  byte rvals[n][n];
+  for(i = 0; i < n; i++) {
+      for(j = i+1; j < n; j++) {
 	// TODO Change rand function
-	r[i][j] = rand();
-	r[j][i] = (r[i][j] ^ mult_log(a_shares[i], b_shares[j]))
-	                   ^ mult_log(a_shares[j], b_shares[i]);
+	rvals[i][j] = rand();
+	rvals[j][i] = (rvals[i][j] ^ mult_log(a[i], b[j]))
+	                   ^ mult_log(a[j], b[i]);
       }
   }
-  for(i = 0; i < order; i++) {
-    r_shares[i] = mult_log(a_shares[i], b_shares[i]);
+  for(i = 0; i < n; i++) {
+    r[i] = mult_log(a[i], b[i]);
     for(j = 0; j < i; j++) {
-      r_shares[i] = add(r_shares[i], r[i][j]);
+      r[i] = add(r[i], rvals[i][j]);
     }
-    for(j = i+1; j < order; j++) {
-      r_shares[i] = add(r_shares[i], r[i][j]);
+    for(j = i+1; j < n; j++) {
+      r[i] = add(r[i], rvals[i][j]);
     }
   }
 }
 
 // TODO Il y a une erreur là dedans
-void secExp254(byte a_share[], byte r_share[], int order) {
+void secExp254(byte a[], byte r[], int n) {
   int i;
-  byte z[order], w[order];
+  byte z[n], w[n];
   // z = a^2
-  for(i = 0; i < order ; i++)
-    z[i] = square(a_share[i]);
-  refresh(z, order);
+  for(i = 0; i < n ; i++)
+    z[i] = square(a[i]);
+  refresh(z, n);
   // r = z * x = x^3
-  secMult(z, a_share, r_share, order);
+  secMult(z, a, r, n);
   // w = r^4 = (x^3)^4 = x^12
-  for(i = 0; i < order ; i++)
-    w[i] = pow4(r_share[i]);
-  refresh(w, order);
+  for(i = 0; i < n ; i++)
+    w[i] = pow4(r[i]);
+  refresh(w, n);
   // r = r * w = x^3X^12 = x^15
-  secMult(r_share, w, r_share, order);
+  secMult(r, w, r, n);
   // r = r^16 = (x^15)^16 = x^240
-  for(i = 0; i < order ; i++)
-    r_share[i] = pow16(r_share[i]);
+  for(i = 0; i < n ; i++)
+    r[i] = pow16(r[i]);
   // r = r * w
-  secMult(r_share, w, r_share, order);
+  secMult(r, w, r, n);
   // r = r * z
-  secMult(r_share, z, r_share, order);
+  secMult(r, z, r, n);
 }
 
-void secAffine(byte a[], byte x[], byte b[], byte res[], int order) {
-  byte temp[order];
-  secMult(a, x, temp, order);
-  for(i = 0; i < order; i++) {
-    res[i] = temp[i] ^ b[i];
-  }
-}
 
-void secSBox(byte x_share[], byte a_share[], byte b_share[], byte r_share[]) {
-  byte temp[order];
-  secExp254(x_share, r_share, order);
-  
-}

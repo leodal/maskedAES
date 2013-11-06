@@ -3,6 +3,7 @@
 #include <time.h>
 
 #include "gf256.h"
+#include "shares.h"
 #include "secureOps.h"
 
 int main() {

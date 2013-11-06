@@ -3,10 +3,9 @@
 
 #include "gf256.h"
 
-void expand(byte a, byte r[], int order);
-
-void secAdd(byte a_shares[], byte b_shares[], byte r_shares[], int order);
-void secSquare(byte a_shares[], byte r_shares[], int order);
-void secMult(byte a_shares[], byte b_shares[], byte r_shares[], int order);
-void secExp254(byte a_share[], byte r_share[], int order);
+// Operations on shares of length n, results in r
+void secAdd(byte a[], byte b[], byte r[], int n);
+void secSquare(byte a[], byte r[], int n);
+void secMult(byte a[], byte b[], byte r[], int n);
+void secExp254(byte a[], byte r[], int n);
 #endif

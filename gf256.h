@@ -1,8 +1,10 @@
 #ifndef __FIELD__
 #define __FIELD__
 
+#ifndef _BYTE_
+#define _BYTE_
 typedef unsigned char byte;
-typedef byte byte;
+#endif
 
 byte add(byte a, byte b);
 byte mult(byte a, byte b);
