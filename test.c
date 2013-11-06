@@ -42,16 +42,7 @@ int main() {
   printf("============================\n");
   printf("= Test SecureOps ===============\n");
   srand((unsigned int) time (NULL));
-
-  /*
-  sec_a[0] = 2; sec_a[1] = 3; sec_a[2] = 4;
-  sec_a[3] = 5; sec_a[4] = 6;
-  */
   expand(a, sec_a, order);
-  /*
-  sec_b[0] = 10; sec_b[1] = 16; sec_b[2] = 15;
-  sec_b[3] = 20; sec_b[4] = 5;
-  */
   expand(b, sec_b, order);
   sum = 0;
   printf("sec_a = ");
