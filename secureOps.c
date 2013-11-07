@@ -1,5 +1,6 @@
 #include "secureOps.h"
 #include "shares.h"
+#include "aes.h"
 
 #include <stdlib.h>
 
@@ -37,6 +38,14 @@ void secMult(byte a[], byte b[], byte r[], int n) {
       r[i] = add(r[i], rvals[i][j]);
     }
   }
+}
+
+void secAesAffine(byte a[], byte r[], int n) {
+  int i;
+  for(i = 0; i<n; i++) {
+    r[i] = aes_affine(a[i]);
+  }
+  if(n % 2 == 1) r[0] ^= 0x63;
 }
 
 // TODO Il y a une erreur là dedans

@@ -5,4 +5,6 @@ int main() {
   genMaskTable();
   printf("\n\n");
   genSquareTable();
+  printf("test");
+  printf("\ba\n");
 }
