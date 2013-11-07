@@ -1,7 +1,6 @@
 #include "gf256.h"
-#ifdef DEBUG
 #include <stdio.h>
-#endif
+
 byte add(byte a, byte b) {
 	return a ^ b;
 }
@@ -22,7 +21,7 @@ byte mult(byte a, byte b) {
   return p;
 }
 
-// Table des logs et des exponetielles dans GF(256) avec comme générateur 0xE5
+/* Table des logs et des exponetielles dans GF(256) avec comme générateur 0xE5 */
 byte log_table[256] = {
   00, 0xFF, 0xC8, 0x08, 0x91, 0x10, 0xd0, 0x36, 0x5a, 0x3e, 0xd8, 0x43, 0x99, 0x77, 0xfe, 0x18,
   0x23, 0x20, 0x07, 0x70, 0xa1, 0x6c, 0x0c, 0x7f, 0x62, 0x8b, 0x40, 0x46, 0xc7, 0x4b, 0xe0, 0x0e,
@@ -61,6 +60,26 @@ byte exp_table[256] = {
   0x66, 0xb2, 0x76, 0x60, 0xda, 0xc5, 0xf3, 0xf6, 0xaa, 0xcd, 0x9a, 0xa0, 0x75, 0x54, 0x0e, 0x01
 };
 
+void genMaskTable() {
+  int i;
+  printf("byte masks[256] = {\n  0, ");
+  for(i = 1; i < 256; i++) {
+    if(i % 10 == 0) printf("\n  ");
+    printf("0xFF, ");
+  }
+  printf("\b\b\n};\n");
+}
+
+void genSquareTable() {
+  int i;
+  printf("byte squares[256] = {\n  ");
+  for(i = 0; i<256; i++) {
+    if(i>0 && i %10 == 0) printf("\n  ");
+    printf("%d, ", mult_log(i, i));
+  }
+  printf("\b\b\n};\n");
+}
+
 byte mult_log(byte a, byte b) {
 #ifdef DEBUG
   printf("DEBUG: log(%d) = %d -- log(%d) = %d\n", a, log_table[a], b, log_table[b]);
@@ -74,12 +93,7 @@ byte mult_log(byte a, byte b) {
 #endif
   log = exp_table[log];
   temp = log;
-  if(!a) {
-    log = zero;
-  } else {
-    log = temp;
-  }
-  if(!b) {
+  if(!a || !b) {
     log = zero;
   } else {
     log = temp;

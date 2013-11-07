@@ -15,4 +15,7 @@ byte square(byte a);
 byte pow4(byte a);
 byte pow16(byte a);
 byte pow254(byte a);
+
+void genMaskTable();
+void genSquareTable();
 #endif
