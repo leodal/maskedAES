@@ -5,7 +5,7 @@ all: genTables tests
 
 tests: test_shares run_aesLike
 
-run_aesLike: debug_tools.o aesLike.o gf256.o run_aesLike.c
+run_aesLike: aesLike.o gf256.o run_aesLike.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 aesLike.o: aesLike.c aesLike.h
