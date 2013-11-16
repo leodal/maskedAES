@@ -17,7 +17,7 @@ secureAES.o: secureAES.c secureAES.h
 genTables: aes.o gf256.o genTables.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-test_aes: aes.o debug_tools.o test_aes.c
+test_aes: aes.o test_aes.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_secureAES: gf256.o shares.o secureAES.o test_secureAES.c
