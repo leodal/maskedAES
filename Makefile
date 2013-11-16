@@ -1,19 +1,30 @@
-lCC=gcc
-CFLAGS=-Wall -ansi
+CC=gcc
+CFLAGS=-Wall -ansi -DDEBUG -DKEY_SIZE=192 -DSHARES=1 -DLINEAR_SIZE=2
 
-all: test test_aes genTables
+all: genTables tests
 
-test: gf256.o shares.o secureOps.o aes.o test.o
-	$(CC) $^ -o $@
+tests: test_shares
+
+genTables: aes.o gf256.o genTables.c
+	$(CC) $(CFLAGS) $^ -o $@
 
 test_aes: aes.o debug_tools.o test_aes.c
-	$(CC) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
-genTables: gf256.o genTables.c
-	$(CC) $^ -o $@
+test_secureAES: gf256.o shares.o secureAES.o test_secureAES.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+test_shares: shares.o gf256.o test_shares.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+test: gf256.o shares.o secureOps.o aes.o test.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 run_test: test
 	./test
 
 clean:
-	-rm -f *~ *.o test
+	-rm -f *~ *.o test test_shares genTables

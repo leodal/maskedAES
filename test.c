@@ -37,9 +37,12 @@ int main() {
   printf("e / c = %d\n", divide(e, c));
   printf("e / a = %d\n", divide(e, a));
   printf("e^-1 = %d\n", inverse(e));
+  printf("d^2 = %d (Log version)\n", square_log(d));
+  printf("a^2 = %d (Log version)\n", square_log(a));
   printf("d^2 = %d\n", square(d));
   printf("a^2 = %d\n", square(a));
-  printf("b^254 = %d\n", pow254(b));
+  printf("a^254 = %d\n", pow254(a));
+  printf("a^-1 = %d\n", inverse(a));
   printf("============================\n");
   printf("= Test SecureOps ===============\n");
   srand((unsigned int) time (NULL));
