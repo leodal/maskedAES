@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi -DDEBUG -DKEY_SIZE=192 -DSHARES=1 -DLINEAR_SIZE=2
+CFLAGS=-Wall -ansi -DDEBUG -DKEY_SIZE=192 -DLINEAR_SIZE=2
 
 all: genTables tests
 
@@ -11,6 +11,9 @@ run_aesLike: aesLike.o gf256.o run_aesLike.c
 aesLike.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DNB_ROUNDS=2 -c $<
 
+secureAES.o: secureAES.c secureAES.h
+	$(CC) $(CFLAGS) -DSHARES=1  -c $<
+
 genTables: aes.o gf256.o genTables.c
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -18,7 +21,7 @@ test_aes: aes.o debug_tools.o test_aes.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_secureAES: gf256.o shares.o secureAES.o test_secureAES.c
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) -DSHARES=1 $^ -o $@
 
 test_shares: shares.o gf256.o test_shares.c
 	$(CC) $(CFLAGS) $^ -o $@
@@ -33,4 +36,4 @@ run_test: test
 	./test
 
 clean:
-	-rm -f *~ *.o test test_shares genTables
+	-rm -f *~ *.o test test_shares genTables run_aesLike test_secureAES test_aes

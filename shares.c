@@ -77,6 +77,7 @@ void secSquare(byte a[], byte r[], int n) {
 void secMult(byte a[], byte b[], byte r[], int n) {
   int i, j;
   byte rvals[n][n];
+  assert(n > 0);
   for(i = 0; i < n; i++) {
       for(j = i+1; j < n; j++) {
 	/* TODO Change rand function */
