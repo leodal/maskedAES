@@ -3,9 +3,9 @@ CFLAGS=-Wall -ansi -DDEBUG -DKEY_SIZE=192 -DLINEAR_SIZE=2
 
 all: genTables tests
 
-tests: test_shares run_aesLike
+tests: test_shares test_aesLike
 
-run_aesLike: aesLike.o gf256.o run_aesLike.c
+test_aesLike: aesLike.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 aesLike.o: aesLike.c aesLike.h
@@ -36,4 +36,4 @@ run_test: test
 	./test
 
 clean:
-	-rm -f *~ *.o test test_shares genTables run_aesLike test_secureAES test_aes
+	-rm -f *~ *.o test test_shares genTables test_aesLike test_secureAES test_aes

@@ -2,13 +2,15 @@
 #include "gf256.h"
 
 #define TMP_SIZE 1
-#define DATA_SIZE LINEAR_SIZE*LINEAR_SIZE+256+2*LINEAR_SIZE+TMP_SIZE
+#define EXTENDED_KEY_SIZE LINEAR_SIZE*(NB_ROUNDS+1)
+#define DATA_SIZE LINEAR_SIZE*LINEAR_SIZE+256+EXTENDED_KEY_SIZE+2*LINEAR_SIZE+TMP_SIZE
 
 byte workZone[DATA_SIZE];
 
 #define LINEAR workZone /* LINEAR_SIZE^2 bytes */
 #define SBOX (LINEAR + LINEAR_SIZE*LINEAR_SIZE) /* 256 bytes */
-#define CT_ADDR (SBOX + 256) /* LINEAR_SIZE bytes */
+#define KEY (SBOX + 256) /* EXTENDED_KEY_SIZE bytes */
+#define CT_ADDR  (KEY + EXTENDED_KEY_SIZE) /* LINEAR_SIZE bytes */
 #define ET_ADDR (CT_ADDR + LINEAR_SIZE) /* LINEAR_SIZE bytes */
 #define TMP_ZONE (ET_ADDR + LINEAR_SIZE) /* TMP_SIZE bytes */
 
@@ -73,6 +75,18 @@ void loadAESlike(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte Sbox[256]) {
   loadSbox(Sbox);
 }
 
+void loadKey(byte key[LINEAR_SIZE*(NB_ROUNDS+1)]) {
+  int i;
+#ifdef DEBUG
+  printf("Chargement de la clef : \n");
+#endif
+  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++)
+    KEY[i] = key[i];
+#ifdef DEBUG
+  displayWorkZone();
+#endif  
+}
+
 void loadClearText(byte clear[LINEAR_SIZE]) {
   int i;
   for(i = 0; i < LINEAR_SIZE; i++)
@@ -109,19 +123,28 @@ void applySbox(byte vector[LINEAR_SIZE]) {
     vector[i] = evalSbox(vector[i]);
 }
 
+void addRoundKey(byte vector[LINEAR_SIZE], int round) {
+  int i;
+  for(i = 0; i < LINEAR_SIZE; i++)
+    vector[i] ^= (KEY + round*LINEAR_SIZE)[i];
+}
+
 void aesLike(byte clear[LINEAR_SIZE], byte cypher[LINEAR_SIZE]) {
   int i;
 #ifdef DEBUG
   printf("Chargement du clair en mémoire :\n");
 #endif
   loadClearText(clear);
+  addRoundKey(CT_ADDR, 0);
   for(i = 0; i < NB_ROUNDS; i++) {
     if(i%2 == 0) {
       applySbox(CT_ADDR);
       matrixProduct(CT_ADDR, ET_ADDR);
+      addRoundKey(ET_ADDR, i);
     } else {
       applySbox(ET_ADDR);
       matrixProduct(ET_ADDR, CT_ADDR);
+      addRoundKey(CT_ADDR, i);
     }
   }
 #ifdef DEBUG

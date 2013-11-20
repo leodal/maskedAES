@@ -16,6 +16,12 @@ int main() {
   byte linear[LINEAR_SIZE][LINEAR_SIZE];
   byte Sbox[256];
   byte x[LINEAR_SIZE], y[LINEAR_SIZE], expected[LINEAR_SIZE];
+  byte key[LINEAR_SIZE*(NB_ROUNDS+1)];
+  printf("##############################\n");
+  printf("NB_ROUNDS = %d\n", NB_ROUNDS);
+  printf("LINEAR_SIZE = %d\n", LINEAR_SIZE);
+  printf("##############################\n");
+
   printf("Définition de la matrice :\n");
   linear[0][0] = 0x03; linear[0][1] = 0x04;
   linear[1][0] = 0x05; linear[1][1] = 0x06;
@@ -80,6 +86,9 @@ int main() {
   }
   printf("]\n");
   printf("Test de sBox... %s\n", testPP(passed));
+
+  printf("Chargement de la clef en mémoire :\n");
+  loadKey(key);
 
   expected[0] = add(mult_log(0x3, 0xff^mult_log(0xfe, 0x1)), mult_log(0x4, 0xff^mult_log(0xfe, 0x2)));
   expected[1] = add(mult_log(0x5, 0xff^mult_log(0xfe, 0x1)), mult_log(0x6, 0xff^mult_log(0xfe, 0x2)));

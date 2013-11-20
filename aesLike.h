@@ -15,6 +15,7 @@
 void loadLinearPart(byte linear[LINEAR_SIZE][LINEAR_SIZE]);
 void loadSbox(byte Sbox[256]);
 void loadAESlike(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte Sbox[256]);
+void loadKey(byte key[LINEAR_SIZE*(NB_ROUNDS+1)]);
 
 void matrixProduct(byte vector[LINEAR_SIZE], byte result[LINEAR_SIZE]);
 byte evalSbox(byte value);
