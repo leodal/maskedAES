@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "secureAES.h"
+#include "secureAESlike.h"
 
 int main() {
   int i;
@@ -16,10 +16,10 @@ int main() {
   srand(100);
 
   loadSecureAES(lin);
-  secureAES(x, y);
+  /*  secureAES(x, y);
   printf("Result : ");
   for(i = 0; i<2; i++)
     printf("%#02.2x ", y[i]);
-  printf("\n");
+    printf("\n");*/
   return 0;
 }

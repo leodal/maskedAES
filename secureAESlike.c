@@ -1,4 +1,4 @@
-#include "secureAES.h"
+#include "secureAESlike.h"
 
 #ifdef DEBUG
 #include "gf256.h"
@@ -56,7 +56,7 @@ void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE]) {
 #endif
   for(i = 0; i < LINEAR_SIZE; i++) {
     for(j = 0; j < LINEAR_SIZE; j++) {
-      expand(linear[i][j], &workZone[SHARES*(i*LINEAR_SIZE+j)], SHARES);
+      expand(linear[i][j], workZone + SHARES*(i*LINEAR_SIZE+j), SHARES);
     }
   }
 #ifdef DEBUG
@@ -83,7 +83,7 @@ void matrix_product(byte * matrix_shares, byte * vector_shares, byte * result_sh
       secMult(matrix_shares+(i*LINEAR_SIZE+j)*SHARES, vector_shares+j*SHARES, workZone+TWZ_ADDR, SHARES);
 #ifdef DEBUG
       m = collapse(matrix_shares+(i*LINEAR_SIZE+j)*SHARES, SHARES);
-      x = collapse(matrix_shares+(i*LINEAR_SIZE+j)*SHARES, SHARES);
+      x = collapse(vector_shares+j*SHARES, SHARES);
       re = mult_log(m, x);
       r = collapse(workZone+TWZ_ADDR, SHARES);
       printf("Produit %d %d : %#02.2x * %#02.2x = %#02.2x =?= %#02.2x ... %s\n",
@@ -92,7 +92,7 @@ void matrix_product(byte * matrix_shares, byte * vector_shares, byte * result_sh
 	     r, (r == re ?"OK":"KO")
 	     );
       displayWorkZone();
-#endif      
+#endif
       secAdd(workZone+TWZ_ADDR, workZone+TWZ_ADDR+LINEAR_SIZE+1, workZone+TWZ_ADDR+LINEAR_SIZE+1, SHARES);
 #ifdef DEBUG
       printf("Ajout dans l'accumulateur :\n");
