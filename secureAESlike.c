@@ -52,21 +52,37 @@ void displayWorkZone() {
 }
 #endif
 
+/* void secSbox(byte x[SHARES]) { */
+/*   /\* xj initialized to 1 *\/ */
+/*   expand(1, TWZ_ADDR, SHARES); */
+/*   /\* sum is initialized to 0 *\/ */
+/*   expand(0, TWZ_ADDR+SHARES, SHARES); */
+/*   for(j = 0; j < 256; j++) { */
+/*     /\* tmp = s * xj *\/ */
+/*     secMult(TWZ_ADDR, SBOX_ADDR+j*SHARES, TWZ_ADDR+2*SHARES, SHARES); */
+/*     /\* accu += tmp *\/ */
+/*     secAdd(TWZ_ADDR + 2*SHARES, TWZ_ADDR + SHARES, TWZ_ADDR + SHARES, SHARES); */
+/*     /\* xj = xj * x ( = x ^j) *\/ */
+/*     secMult(TWZ_ADDR, x, TWZ_ADDR, SHARES); */
+/*   } */
+/*   for(j = 0; j < SHARES; j++) */
+/*     x[j] = (TWZ_ADDR + SHARES)[j]; */
+/* } */
+
 void secSbox(byte x[SHARES]) {
-  /* xj initialized to 1 */
-  expand(1, TWZ_ADDR, SHARES);
-  /* sum is initialized to 0 */
-  expand(0, TWZ_ADDR+SHARES, SHARES);
-  for(j = 0; j < 256; j++) {
-    /* tmp = s * xj */
-    secMult(TWZ_ADDR, SBOX_ADDR+j*SHARES, TWZ_ADDR+2*SHARES, SHARES);
-    /* accu += tmp */
-    secAdd(TWZ_ADDR + 2*SHARES, TWZ_ADDR + SHARES, TWZ_ADDR + SHARES, SHARES);
-    /* xj = xj * x ( = x ^j) */
-    secMult(TWZ_ADDR, x, TWZ_ADDR, SHARES);
+  int i;
+  /* accu = *TWZ = sbox[0] = s_255 */
+  for(i = 0; i < SHARES; i++) {
+    TWZ_ADDR[i] = SBOX_ADDR[i];
   }
-  for(j = 0; j < SHARES; j++)
-    x[j] = (TWZ_ADDR + SHARES)[j];
+  for(i = 1; i < 256; i++) {
+    secMult(TWZ_ADDR, x, TWZ_ADDR, SHARES);
+    secAdd(TWZ_ADDR, SBOX_ADDR+i*SHARES, TWZ_ADDR, SHARES);
+  }
+  /* Le résultat est dans TWZ */
+  for(i = 0; i < SHARES; i++) {
+    x[i] = TWZ_ADDR[i];
+  }
 }
 
 void apply_sbox() {

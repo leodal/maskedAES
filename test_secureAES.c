@@ -11,13 +11,13 @@ int main() {
   int test = 1;
   lin[0][0] = 0x03; lin[0][1] = 0x04;
   lin[1][0] = 0x05; lin[1][1] = 0x06;
-    key[0] = 0x00; key[1] = 0x00; key[2] = 0x00; key[3] = 0x00;
-  /*  key[0] = 0xbb; key[1] = 0xbb; key[2] = 0xbb; key[3] = 0xbb; */
+  /* key[0] = 0x00; key[1] = 0x00; key[2] = 0x00; key[3] = 0x00; */
+  key[0] = 0x0b; key[1] = 0x0b; key[2] = 0x0b; key[3] = 0x0b;
   x[0] = 1; x[1] = 2;
-  sbox[0] = 0; sbox[1] = 2;
-  for(i = 2; i < 256; i++)
+  for(i = 0; i < 256; i++)
     sbox[i] = 0;
-  e[0] = 0xe4; e[1] = 0x44;
+  sbox[254] = 0x2;
+  e[0] = 0x1a; e[1] = 0xa4;
   /* srand((unsigned int) time (NULL)); */
   srand(100);
 
