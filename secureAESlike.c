@@ -4,16 +4,6 @@
 #include "gf256.h"
 #endif
 
-/**
-void secureAES(byte in[], byte out[], byte key[], int n) {
-  byte rk[176];
-
-  masked_keyExpansion(key, rk);
-  for(i = 0; i < 9; i++) {
-    
-  }
-}
-**/
 /* Expanded matrix size = LINEAR_SIZE*LINEAR_SIZE*SHARES
    Clear data shares size = LINEAR_SIZE*SHARES
    Cypher data shares size = LINEAR_SIZE*SHARES
@@ -28,8 +18,6 @@ byte workZone[WSIZE];
 #define CT_ADDR     (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES)
 #define ET_ADDR     (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES + LINEAR_SIZE*SHARES)
 #define TWZ_ADDR    (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES + 2*LINEAR_SIZE*SHARES)
-
-int i, j, k;
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -86,6 +74,7 @@ void secSbox(byte x[SHARES]) {
 }
 
 void apply_sbox() {
+  int i;
 #ifdef DEBUG
   printf("Application de la Sbox...\n");
 #endif
@@ -118,12 +107,14 @@ void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte sbox[256]) {
 }
 
 void setKey(byte key[LINEAR_SIZE*NB_ROUNDS]) {
+  int i;
   for(i = 0; i < LINEAR_SIZE*NB_ROUNDS; i++) {
     expand(key[i], KEY_ADDR + i*SHARES, SHARES);
   }
 }
 
 void matrix_product() {
+  int i,j;
 #ifdef DEBUG
   printf("Application linéaire...\n");
 #endif
@@ -171,22 +162,25 @@ void matrix_product() {
 #endif
 }
 
-void add_round_key() {
+void add_round_key(int round) {
+  int i;
   for(i = 0; i < LINEAR_SIZE*SHARES; i++)
-    CT_ADDR[i] ^= (KEY_ADDR + k*LINEAR_SIZE*SHARES)[i];
+    CT_ADDR[i] ^= (KEY_ADDR + round*LINEAR_SIZE*SHARES)[i];
 }
 
 void runSecureAES() {
-  for(k = 0; k < NB_ROUNDS; k++) {
-    add_round_key();
+  int i, j;
+  for(i = 0; i < NB_ROUNDS; i++) {
+    add_round_key(i);
     apply_sbox();
     matrix_product();
-    for(i = 0; i < SHARES*LINEAR_SIZE; i++)
-      CT_ADDR[i] = ET_ADDR[i];
+    for(j = 0; j < SHARES*LINEAR_SIZE; j++)
+      CT_ADDR[j] = ET_ADDR[j];
   }
 }
 
 void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]) {
+  int i;
 #ifdef DEBUG
   printf("Chargement des données...\n");
 #endif
