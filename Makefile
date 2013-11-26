@@ -12,7 +12,7 @@ aesLike.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DNB_ROUNDS=2 -c $<
 
 secureAESlike.o: secureAESlike.c secureAESlike.h
-	$(CC) $(CFLAGS) -DSHARES=1  -c $<
+	$(CC) $(CFLAGS) -DSHARES=5 -DNB_ROUNDS=2 -c $<
 
 genTables: aes.o gf256.o genTables.c
 	$(CC) $(CFLAGS) $^ -o $@
@@ -21,7 +21,7 @@ test_aes: aes.o test_aes.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_secureAES: gf256.o shares.o secureAESlike.o test_secureAES.c
-	$(CC) $(CFLAGS) -DSHARES=1 $^ -o $@
+	$(CC) $(CFLAGS) -DNB_ROUNDS=2 $^ -o $@
 
 test_shares: shares.o gf256.o test_shares.c
 	$(CC) $(CFLAGS) $^ -o $@

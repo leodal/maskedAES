@@ -17,14 +17,19 @@ void secureAES(byte in[], byte out[], byte key[], int n) {
 /* Expanded matrix size = LINEAR_SIZE*LINEAR_SIZE*SHARES
    Clear data shares size = LINEAR_SIZE*SHARES
    Cypher data shares size = LINEAR_SIZE*SHARES
-   Temporary datas = 2*SHARES
+   Temporary datas = SHARES
  */
-#define WSIZE LINEAR_SIZE*LINEAR_SIZE*SHARES+2*LINEAR_SIZE*SHARES+2*SHARES 
+#define WSIZE LINEAR_SIZE*LINEAR_SIZE*SHARES + 256 + 2*LINEAR_SIZE*SHARES+3*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES
 byte workZone[WSIZE];
-#define XTENDED_MATRIX_ADDR 0
-#define CT_ADDR LINEAR_SIZE*LINEAR_SIZE*SHARES
-#define ET_ADDR LINEAR_SIZE*LINEAR_SIZE*SHARES+LINEAR_SIZE*SHARES
-#define TWZ_ADDR LINEAR_SIZE*LINEAR_SIZE*SHARES+2*LINEAR_SIZE*SHARES
+
+#define MATRIX_ADDR workZone
+#define SBOX_ADDR   (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES)
+#define KEY_ADDR    (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES)
+#define CT_ADDR     (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES)
+#define ET_ADDR     (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES + LINEAR_SIZE*SHARES)
+#define TWZ_ADDR    (workZone + LINEAR_SIZE*LINEAR_SIZE*SHARES + 256*SHARES + LINEAR_SIZE*NB_ROUNDS*SHARES + 2*LINEAR_SIZE*SHARES)
+
+int i, j, k;
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -47,86 +52,143 @@ void displayWorkZone() {
 }
 #endif
 
-void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE]) {
-  int i, j;
-#ifdef DEBUG
-  zeroWorkZone();
-  displayWorkZone();
-  printf("Chargement de l'algo...\n");
-#endif
-  for(i = 0; i < LINEAR_SIZE; i++) {
-    for(j = 0; j < LINEAR_SIZE; j++) {
-      expand(linear[i][j], workZone + SHARES*(i*LINEAR_SIZE+j), SHARES);
-    }
+void secSbox(byte x[SHARES]) {
+  /* xj initialized to 1 */
+  expand(1, TWZ_ADDR, SHARES);
+  /* sum is initialized to 0 */
+  expand(0, TWZ_ADDR+SHARES, SHARES);
+  for(j = 0; j < 256; j++) {
+    /* tmp = s * xj */
+    secMult(TWZ_ADDR, SBOX_ADDR+j*SHARES, TWZ_ADDR+2*SHARES, SHARES);
+    /* accu += tmp */
+    secAdd(TWZ_ADDR + 2*SHARES, TWZ_ADDR + SHARES, TWZ_ADDR + SHARES, SHARES);
+    /* xj = xj * x ( = x ^j) */
+    secMult(TWZ_ADDR, x, TWZ_ADDR, SHARES);
   }
+  for(j = 0; j < SHARES; j++)
+    x[j] = (TWZ_ADDR + SHARES)[j];
+}
+
+void apply_sbox() {
+#ifdef DEBUG
+  printf("Application de la Sbox...\n");
+#endif
+  for(i = 0; i < LINEAR_SIZE; i++)
+    secSbox(CT_ADDR+i*SHARES);
 #ifdef DEBUG
   displayWorkZone();
 #endif
 }
 
-void matrix_product(byte * matrix_shares, byte * vector_shares, byte * result_shares) {
+void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte sbox[256]) {
   int i, j;
 #ifdef DEBUG
-  byte m, x, re, r;
-  printf("Etat initial :\n");
+  zeroWorkZone();
   displayWorkZone();
+  printf("Chargement de l'algo...\n");
+  printf("NB SHARES = %d; NB_ROUNDS = %d\n", SHARES, NB_ROUNDS);
+  printf("Taille mémoire = %d\n", WSIZE);
 #endif
   for(i = 0; i < LINEAR_SIZE; i++) {
-    /* Remise à zero de l'accumulateur */
-    for(j=0; j<SHARES; j++)
-      (workZone+TWZ_ADDR+LINEAR_SIZE)[j] = 0;
+    for(j = 0; j < LINEAR_SIZE; j++) {
+      expand(linear[i][j], MATRIX_ADDR + SHARES*(i*LINEAR_SIZE+j), SHARES);
+    }
+  }
+  for(i = 0; i < 256; i++)
+    expand(sbox[i], SBOX_ADDR + i*SHARES, SHARES);
 #ifdef DEBUG
-    printf("Remise à zero de l'accumulateur :\n");
-    displayWorkZone();
+  displayWorkZone();
 #endif
-    for(j=0; j < LINEAR_SIZE; j++) {
-      secMult(matrix_shares+(i*LINEAR_SIZE+j)*SHARES, vector_shares+j*SHARES, workZone+TWZ_ADDR, SHARES);
+}
+
+void setKey(byte key[LINEAR_SIZE*NB_ROUNDS]) {
+  for(i = 0; i < LINEAR_SIZE*NB_ROUNDS; i++) {
+    expand(key[i], KEY_ADDR + i*SHARES, SHARES);
+  }
+}
+
+void matrix_product() {
 #ifdef DEBUG
-      m = collapse(matrix_shares+(i*LINEAR_SIZE+j)*SHARES, SHARES);
-      x = collapse(vector_shares+j*SHARES, SHARES);
+  printf("Application linéaire...\n");
+#endif
+  /*#ifdef DEBUG
+  byte m, x, re, r;
+  #endif*/
+  for(i = 0; i < LINEAR_SIZE; i++) {
+    /* On remet à zero la zone de stockage du résultat */
+    for(j = 0; j < SHARES; j++)
+      (ET_ADDR + i*SHARES)[j] = 0;
+    for(j = 0; j < LINEAR_SIZE; j++) {
+      /* On effecture les produits du jème elt de la ligne i de la matrice
+	 avec le jème element du vecteur */
+      secMult(MATRIX_ADDR+(i*LINEAR_SIZE+j)*SHARES,
+	      CT_ADDR+j*SHARES,
+	      TWZ_ADDR, SHARES);
+      /*#ifdef DEBUG
+      m = collapse(MATRIX_ADDR+(i*LINEAR_SIZE+j)*SHARES, SHARES);
+      x = collapse(CT_ADDR+j*SHARES, SHARES);
       re = mult_log(m, x);
-      r = collapse(workZone+TWZ_ADDR, SHARES);
+      r = collapse(TWZ_ADDR, SHARES);
       printf("Produit %d %d : %#02.2x * %#02.2x = %#02.2x =?= %#02.2x ... %s\n",
 	     i, j,
 	     m, x, re,
 	     r, (r == re ?"OK":"KO")
 	     );
       displayWorkZone();
-#endif
-      secAdd(workZone+TWZ_ADDR, workZone+TWZ_ADDR+LINEAR_SIZE+1, workZone+TWZ_ADDR+LINEAR_SIZE+1, SHARES);
-#ifdef DEBUG
-      printf("Ajout dans l'accumulateur :\n");
+      x = collapse(ET_ADDR+j*SHARES, SHARES);
+      #endif*/
+      /* On ajoute ce produit au total dans ET_ADDR[i] */
+       secAdd(TWZ_ADDR, ET_ADDR+i*SHARES, ET_ADDR+i*SHARES, SHARES);
+       /*#ifdef DEBUG
+       m = collapse(TWZ_ADDR, SHARES);
+       re = add(r, x);
+       r = collapse(ET_ADDR+j*SHARES, SHARES);
+       printf("Ajout du résultat du produit %d dans ET[i] = %d : %d =?= %d... %s\n",
+	      m, x, r, re,
+	      (r == re ?"OK":"KO"));
       displayWorkZone();
-#endif        
+      #endif*/
     }
-    for(j=0; j<SHARES; j++)
-      (result_shares+i*SHARES)[j] = (workZone+TWZ_ADDR+LINEAR_SIZE)[j];
   }
-}
-
-void runSecureAES() {
-#ifdef DEBUG
-  printf("Produit de matrices...\n");
-#endif
-  matrix_product(workZone, workZone+CT_ADDR, workZone+ET_ADDR);
 #ifdef DEBUG
   displayWorkZone();
 #endif
 }
 
+void add_round_key() {
+  for(i = 0; i < LINEAR_SIZE*SHARES; i++)
+    CT_ADDR[i] ^= (KEY_ADDR + k*LINEAR_SIZE*SHARES)[i];
+}
+
+void runSecureAES() {
+  for(k = 0; k < NB_ROUNDS; k++) {
+    add_round_key();
+    apply_sbox();
+    matrix_product();
+    for(i = 0; i < SHARES*LINEAR_SIZE; i++)
+      CT_ADDR[i] = ET_ADDR[i];
+  }
+}
+
 void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]) {
-  int i;
 #ifdef DEBUG
   printf("Chargement des données...\n");
 #endif
   for(i = 0; i < LINEAR_SIZE; i++) {
-    expand(x[i] , (workZone+CT_ADDR+i*SHARES), SHARES);
+    expand(x[i] , (CT_ADDR+i*SHARES), SHARES);
   }
 #ifdef DEBUG
   displayWorkZone();
 #endif
   runSecureAES();
+#ifdef DEBUG
+  printf("Récupération du résultat :\n");
+  displayWorkZone();
+#endif
   for(i = 0; i < LINEAR_SIZE; i++) {  
-    r[i] = collapse(workZone+ET_ADDR+i*SHARES, SHARES);
+    r[i] = collapse(ET_ADDR+i*SHARES, SHARES);
   }
+#ifdef DEBUG
+  displayWorkZone();
+#endif
 }
