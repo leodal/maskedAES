@@ -16,7 +16,7 @@ void printMem() {
     printf("%#02.2x ", shares[i]);
 }
 
-int test_var(int n, byte a, byte* a_shares) {
+int test_var(byte a, byte* a_shares) {
   int i;
   byte sum;
 #ifdef TEST_VERBOSE
@@ -24,82 +24,84 @@ int test_var(int n, byte a, byte* a_shares) {
   printf("\n");
 #endif
   sum = 0;
-  for(i = 0; i<n; i++)
+  for(i = 0; i<SHARES; i++)
     sum ^= a_shares[i];
 #ifdef TEST_VERBOSE
   printf("Somme = %#02.2x\n", sum);
 #endif
-  return sum == a && collapse(a_shares, n) == a; 
+  return sum == a && collapse(a_shares) == a; 
 }
 
-int test_n(int n, byte a, byte* a_shares, byte b, byte* b_shares, byte c, byte* c_shares) {
+int test(byte a, byte* a_shares, byte b, byte* b_shares, byte c, byte* c_shares) {
   int local_test, pass_all = 1;
-  printf("******* %d shares *************\n", n);
-  expand(a, a_shares, n);
-  expand(b, b_shares, n);
-  expand(c, c_shares, n);
-  local_test = test_var(n, a, a_shares);
-  local_test &= test_var(n, b, b_shares);
+  printf("******* %d shares *************\n", SHARES);
+  expand(a, a_shares);
+  expand(b, b_shares);
+  expand(c, c_shares);
+  local_test = test_var(a, a_shares);
+  local_test &= test_var(b, b_shares);
   pass_all &= local_test;
   printf("Expand and collapse... %s\n", testPP(local_test));
-  refresh(a_shares, n);
-  local_test = test_var(n, a, a_shares);
+  refresh(a_shares);
+  local_test = test_var(a, a_shares);
   pass_all &= local_test;
   printf("Refresh... %s\n", testPP(local_test));
-  secAdd(a_shares, b_shares, c_shares+10, n);
-  local_test = test_var(n, add(a, b), c_shares+10);
+  secAdd(a_shares, b_shares, c_shares);
+  local_test = test_var(add(a, b), c_shares);
   pass_all &= local_test;
-  printf("Sum of a and b in gf256 : %#02.2x + %#02.2x = %#02.2x (=?= ^)... %s\n", a, b, add(a, b), testPP(local_test));
-  secAdd(a_shares, b_shares, a_shares, n);
-  local_test = test_var(n, a=add(a, b), a_shares);
+  printf("Sum of a and b in gf256 : %#02.2x + %#02.2x = %#02.2x (=?= %#02.2x)... %s\n", a, b, add(a, b), collapse(c_shares), testPP(local_test));
+  secAdd(a_shares, b_shares, a_shares);
+  local_test = test_var(a=add(a, b), a_shares);
   pass_all &= local_test;
   printf("Sum of a and b in gf256, result in a : %#02.2x + %#02.2x = %#02.2x (=?= ^)... %s\n", add(a, b), b, a, testPP(local_test));
-  secSquare(a_shares, c_shares+10, n);
-  local_test = test_var(n, square(a), c_shares+10);
+  secSquare(a_shares, c_shares+10);
+  local_test = test_var(square(a), c_shares+10);
   pass_all &= local_test;
-  secSquare(b_shares, c_shares+10, n);
-  local_test &= test_var(n, square(b), c_shares+10);
+  secSquare(b_shares, c_shares+10);
+  local_test &= test_var(square(b), c_shares+10);
   pass_all &= local_test;
   printf("Square of a and b in gf256 : %#02.2x^2 = %#02.2x (=?= ^^), %#02.2x^2 = %#02.2x (=?= ^)... %s\n", a, square(a), b, square(b), testPP(local_test));
-  secSquare(c_shares, c_shares+10, n);
-  local_test = test_var(n, square(c), c_shares+10);
+  expand(0x0, c_shares);
+  secSquare(c_shares, c_shares+10);
+  local_test = test_var(square(c), c_shares+10);
   pass_all &= local_test;
   printf("Square of 0 in gf256 : %#02.2x^2 = %#02.2x (=?= ^)... %s\n", c, square(c), testPP(local_test));
-  secSquare(b_shares, b_shares, n);
-  local_test = test_var(n, square(b), b_shares);
+  secSquare(b_shares, b_shares);
+  local_test = test_var(square(b), b_shares);
   pass_all &= local_test;
   printf("Square of b in gf256, result in b : %#02.2x^2 = %#02.2x (=?= ^)... %s\n", b, square(b), testPP(local_test));
   b = square(b);
-  secMult(a_shares, b_shares, c_shares+10, n);
-  local_test = test_var(n, mult_log(a, b), c_shares+10);
+  secMult(a_shares, b_shares, c_shares+10);
+  local_test = test_var(mult_log(a, b), c_shares+10);
   pass_all &= local_test;
   printf("Product of a and b in gf256 : %#02.2x * %#02.2x = %#02.2x (=?= ^)... %s\n", a, b, mult_log(a, b), testPP(local_test));
-  secMult(c_shares, b_shares, c_shares+10, n);
-  local_test = test_var(n, mult_log(c, b), c_shares+10);
+  expand(0x0, c_shares);
+  secMult(c_shares, b_shares, c_shares+10);
+  local_test = test_var(mult_log(c, b), c_shares+10);
   pass_all &= local_test;
-  printf("Product of 0 and b in gf256 : %#02.2x * %#02.2x = %#02.2x (=?= ^)... %s\n", c, b, mult_log(c, b), testPP(local_test));
-  secMult(a_shares, c_shares, c_shares+10, n);
-  local_test = test_var(n, mult_log(a, c), c_shares+10);
+  printf("Product of 0 and b in gf256 : %#02.2x * %#02.2x = %#02.2x (=?= %#02.2x)... %s\n", collapse(c_shares), b, mult_log(c, b), collapse(c_shares+10), testPP(local_test));
+  secMult(a_shares, c_shares, c_shares+10);
+  local_test = test_var(mult_log(a, c), c_shares+10);
   pass_all &= local_test;
   printf("Product of a and 0 in gf256 : %#02.2x * %#02.2x = %#02.2x (=?= ^)... %s\n", a, c, mult_log(a, c), testPP(local_test));
-  secMult(a_shares, b_shares, a_shares, n);
-  local_test = test_var(n, a=mult_log(a, b), a_shares);
+  secMult(a_shares, b_shares, a_shares);
+  local_test = test_var(a=mult_log(a, b), a_shares);
   pass_all &= local_test;
   printf("Product of a and b in gf256, result in a : %#02.2x * %#02.2x = %#02.2x (=?= ^)... %s\n", mult_log(a, b), b, a, testPP(local_test));
   
-  secExp254(a_shares, c_shares+10, n);
-  local_test = test_var(n, inverse(a), c_shares+10);
+  secExp254(a_shares, c_shares+10);
+  local_test = test_var(inverse(a), c_shares+10);
   pass_all &= local_test;
-  secExp254(b_shares, c_shares+10, n);
-  local_test &= test_var(n, inverse(b), c_shares+10);
+  secExp254(b_shares, c_shares+10);
+  local_test &= test_var(inverse(b), c_shares+10);
   pass_all &= local_test;
   printf("Inverse of a and b in gf256 : %#02.2x^-1 = %#02.2x (=?= ^^), %#02.2x^-1 = %#02.2x (=?= ^)... %s\n", a, inverse(a), b, inverse(b), testPP(local_test));
-  secExp254(c_shares, c_shares+10, n);
-  local_test = test_var(n, inverse(c), c_shares+10);
+  secExp254(c_shares, c_shares+10);
+  local_test = test_var(inverse(c), c_shares+10);
   pass_all &= local_test;
   printf("Inverse of 0 in gf256 : %#02.2x^-1 = %#02.2x (=?= ^)... %s\n", c, inverse(c), testPP(local_test));
-  secExp254(b_shares, b_shares, n);
-  local_test = test_var(n, inverse(b), b_shares);
+  secExp254(b_shares, b_shares);
+  local_test = test_var(inverse(b), b_shares);
   pass_all &= local_test;
   printf("Inverse of b in gf256, result in b : %#02.2x^-1 = %#02.2x (=?= ^)... %s\n", b, inverse(b), testPP(local_test));
   b = inverse(b);
@@ -119,9 +121,7 @@ int main() {
   printf("c = %d = %#02.2x\n", c, c);
   printf("#####################\n");
   
-  pass_all &= test_n(1, a, shares, b, shares+10, c, shares+20);
-  pass_all &= test_n(3, a, shares, b, shares+10, c, shares+20);
-  pass_all &= test_n(5, a, shares+4, b, shares+14, c, shares+24);
+  pass_all = test(a, shares, b, shares+10, c, shares+20);
 
   printf("Test %s\n", (pass_all?"OK":"KO"));
   return !pass_all;

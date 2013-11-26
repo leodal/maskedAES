@@ -30,7 +30,7 @@ test_secureAES: gf256.o shares.o secureAESlike.o test_secureAES.c
 	$(CC) $(CFLAGS) -DNB_ROUNDS=$(ROUNDS) $^ -o $@
 
 test_shares: shares.o gf256.o test_shares.c
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) -DSHARES=$(SHARES) $^ -o $@
 
 test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c
 	$(CC) $(CFLAGS) $^ -o $@
