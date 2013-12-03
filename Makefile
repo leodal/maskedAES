@@ -8,9 +8,6 @@ all: genTables tests
 
 tests: test_shares test_aesLike
 
-test_aesLike: aesLike.o gf256.o test_aesLike.c
-	$(CC) $(CFLAGS) $^ -o $@
-
 aesLike.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DNB_ROUNDS=$(ROUNDS) -c $<
 
@@ -20,10 +17,17 @@ shares.o: shares.c shares.h
 secureAESlike.o: secureAESlike.c secureAESlike.h
 	$(CC) $(CFLAGS) -DSHARES=$(SHARES) -DNB_ROUNDS=2 -c $<
 
+sbox_tools.o: sbox_tools.c sbox_tools.h
+	$(CC) $(CFLAGS) -c $<
+
 genTables: aes.o gf256.o genTables.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_aes: aes.o test_aes.c
+	$(CC) $(CFLAGS) $^ -o $@
+
+
+test_aesLike: aesLike.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test_secureAES: gf256.o shares.o secureAESlike.o test_secureAES.c
@@ -35,6 +39,9 @@ test_shares: shares.o gf256.o test_shares.c
 test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+test_sbox_tools: gf256.o sbox_tools.o test_sbox_tools.c
+	$(CC) $(CFLAGS) $^ -o $@
+
 test: gf256.o shares.o secureOps.o aes.o test.o
 	$(CC) $(CFLAGS) $^ -o $@
 
@@ -42,4 +49,4 @@ run_test: test
 	./test
 
 clean:
-	-rm -f *~ *.o test test_shares genTables test_aesLike test_secureAES test_aes
+	-rm -f *~ *.o test test_shares genTables test_aesLike test_secureAES test_aes test_sbox_tools
