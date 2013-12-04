@@ -3,16 +3,27 @@
 #include <stdio.h>
 
 /**
- * Given a polynomial P in GF(256)[x], evaluate P(x)
+ * Given a polynomial P in GF(256)[x] (low degrees at first), evaluate P(x)
  */
 byte evalPolySbox(byte polynomial[256], byte x) {
   int i;
   byte accu = polynomial[0];
+  byte pow = 0x1;
   for(i = 1; i < 256; i++) {
-    accu = mult_log(accu, x);
-    accu ^= polynomial[i];
+    pow = mult_log(pow, x);
+    accu ^= mult_log(polynomial[i], pow);
   }
   return accu;
+}
+
+/**
+ * Given a Sbox in polynomial form, print Sbox table
+ */
+void buildSbox(byte polynomial[256], byte sbox[256]) {
+  int i;
+  for(i = 0; i < 256; i++) {
+    sbox[i] = evalPolySbox(polynomial, i);
+  }
 }
 
 /**
@@ -33,6 +44,7 @@ void printSbox(byte polynomial[256]) {
  * poly2  : polynome de degré 1
  * result : polynome de degré d, produit de poly1 et poly2
  * Attention à l'odre : ici les petits degrés on les petits indices ; je considère l'inverse dans mes sbox
+ * Attention, il faut que polyDegD et result soient différents
  */
 void polyProduct(byte polyDegD[], byte polyDeg1[], byte result[], int d) {
   int i;
@@ -68,38 +80,85 @@ void polyAdd(byte poly1[], byte poly2[], byte result[], int d) {
   }
 }
 
-void buildPolySbox(byte sbox[256], byte polySbox[256]) {
-  int i;
-  int j;
+void lagrange(byte table[], byte result[], int d) {
+  int i, j, k, isZero;
   byte polyDeg1[2];
   polyDeg1[1] = 0x1;
-  /* x_i = i et y_i = sbox[i] */
-  for(i = 0; i < 256; i++) {
+  for(i = 0; i <= d; i++)
+    result[i] = 0;
+  for(i = 0; i <= d; i++) {
     byte a = 1;
-    byte polyLagrange[256];
-    polyLagrange[0] = 1;
-    for(j = 0; j < i; j++) {
-      polyDeg1[0] = j;
-      polyProduct(polyLagrange, polyDeg1, polyLagrange, i);
-      a = mult_log(a, add(i, j));
+    byte lagrangePoly[d+1], tmpPoly[d+1];
+#ifdef DEBUG_LAGRANGE
+    printf("i = %d (d = %d)\n", i, d);
+#endif
+    lagrangePoly[0] = 0x1;
+    for(j = 1; j < d+1; j++) {
+      lagrangePoly[j] = 0;
     }
-    for(j = i+1; j < 256; j++) {
-      polyDeg1[0] = j;
-      polyProduct(polyLagrange, polyDeg1, polyLagrange, i);
-      a = mult_log(a, add(i, j));
+#ifdef DEBUG_LAGRANGE
+    printf("\tLagrange poly = ");
+    for(j = 0; j < d+1; j++) {
+      if(lagrangePoly[j]) {
+	printf("%#2.2x * X^%d + ", lagrangePoly[j], j);
+      }
     }
-    /* maintenant, a = \Pi^255_{j = 0, i \not= j} (x_i - x_j) 
-                     = \Pi^255_{j = 0, i \not= j} (i - j)
-       et polyProduct = \Pi^255_{j = 0, i \not= j} (X - x_i)
-    */
+    printf("\b\b  \n");
+#endif
+    for(j = 0; j <= d; j++) { 
+      if(i != j) {
+	polyDeg1[0] = j;
+#ifdef DEBUG_LAGRANGE
+	printf("\tj = %d\n", j);
+	printf("\t\tpolyDeg1 = ");
+	for(k = 0; k < 2; k++) {
+	  if(polyDeg1[k]) {
+	    printf("%#2.2x * X^%d + ", polyDeg1[k], k);
+	  }
+	}
+	printf("\b\b  \n");
+#endif
+ 	a = mult_log(i ^ j, a);
+ 	polyProduct(lagrangePoly, polyDeg1, tmpPoly, d+1);
+	for(k = 0; k < d+1; k++) {
+	  lagrangePoly[k] = tmpPoly[k];
+	}
+	isZero = 1;
+#ifdef DEBUG_LAGRANGE
+	printf("\t\ta = %#2.2x\n", a);
+	printf("\t\tlagrangePoly = ");
+	for(k = 0; k < 2; k++) {
+	  if(lagrangePoly[k]) {
+	    printf("%#2.2x * X^%d + ", lagrangePoly[k], k);
+	    isZero = 0;
+	  }
+	}
+	if(isZero) printf("0\n");
+	else printf("\b\b\b  \n");
+#endif
+      }
+    }
     a = inverse(a);
-    /* maintenant, a = 1 / \Pi^255_{j = 0, i \not= j} (x_i - x_j) */
-    a = mult_log(sbox[i], a);
-    /* maintenant, a = y_i / \Pi^255_{j = 0, i \not= j} (x_i - x_j) */
-    polyScalMult(polyLagrange, a, 255);
-    /* maintenant polyProduct = y_i * \Pi^255_{j = 0, i \not= j} (X - x_i) / \Pi^255_{j = 0, i \not= j} (x_i - x_j) */
-    polyAdd(polyLagrange, polySbox, polySbox, 255);
+    a = mult_log(table[i], a);
+    polyScalMult(lagrangePoly, a, d);
+    polyAdd(lagrangePoly, result, result, d);
   }
+}
+
+void buildPolySbox(byte sbox[256], byte polySbox[256]) {
+  lagrange(sbox, polySbox, 255);
+}
+
+void printPolySbox(byte sbox[256]) {
+  int i;
+  byte polySbox[256];
+  buildPolySbox(sbox, polySbox);
+  printf("byte polySbox[256] = {");
+  for(i = 255; i >= 0; i--) {
+    if((255 - i) %10 == 0) printf("\n  ");
+    printf("%#2.2x, ", polySbox[i]);
+  }
+  printf("\b\b \n}\n");
 }
 
 /*
