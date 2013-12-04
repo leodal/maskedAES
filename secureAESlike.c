@@ -134,7 +134,7 @@ void matrix_product() {
       /*#ifdef DEBUG
       m = collapse(MATRIX_ADDR+(i*LINEAR_SIZE+j)*SHARES);
       x = collapse(CT_ADDR+j*SHARES);
-      re = mult_log(m, x);
+      re = mult(m, x);
       r = collapse(TWZ_ADDR);
       printf("Produit %d %d : %#02.2x * %#02.2x = %#02.2x =?= %#02.2x ... %s\n",
 	     i, j,

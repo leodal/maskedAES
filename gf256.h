@@ -7,8 +7,8 @@ typedef unsigned char byte;
 #endif
 
 byte add(byte a, byte b);
+byte mult_calc(byte a, byte b);
 byte mult(byte a, byte b);
-byte mult_log(byte a, byte b);
 byte divide(byte a, byte b);
 byte inverse(byte a);
 byte square(byte a);

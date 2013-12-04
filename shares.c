@@ -56,12 +56,12 @@ void secMult(byte a[], byte b[], byte r[]) {
       for(j = i+1; j < SHARES; j++) {
 	/* TODO Change rand function */
 	rvals[i][j] = rand();
-	rvals[j][i] = (rvals[i][j] ^ mult_log(a[i], b[j]))
-	                   ^ mult_log(a[j], b[i]);
+	rvals[j][i] = (rvals[i][j] ^ mult(a[i], b[j]))
+	                   ^ mult(a[j], b[i]);
       }
   }
   for(i = 0; i < SHARES; i++) {
-    r[i] = mult_log(a[i], b[i]);
+    r[i] = mult(a[i], b[i]);
     for(j = 0; j < i; j++) {
       r[i] = add(r[i], rvals[i][j]);
     }

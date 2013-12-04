@@ -31,8 +31,8 @@ int main() {
   printf("a * b = %d\n", mult(b, a));
   printf("b * c = %d\n", mult(b, c));
   printf("a * c = %d\n", mult(a, c));
-  printf("b * c = %d (Log version)\n", mult_log(b, c));
-  printf("a * c = %d (Log version)\n", mult_log(a, c));
+  printf("b * c = %d (Log version)\n", mult(b, c));
+  printf("a * c = %d (Log version)\n", mult(a, c));
   printf("d / c = %d\n", divide(d, c));
   printf("e / c = %d\n", divide(e, c));
   printf("e / a = %d\n", divide(e, a));

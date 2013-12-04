@@ -117,14 +117,14 @@ int main() {
   printf("PolySbox(1) = %#2.2x\n", evalPolySbox(polySbox, 1));
   test = 1;
   for(i = 0; i < 256; i++) {
-    test &= evalPolySbox(polySbox, i) == add(mult_log(0x2, square(i)), 0x3);
+    test &= evalPolySbox(polySbox, i) == add(mult(0x2, square(i)), 0x3);
   }
   printf("Test evalPolySbox... %s\n", test?"OK":"KO");
   
   buildSbox(polySbox, sbox);
   test = 1;
   for(i = 0; i < 256; i++) {
-    test &= sbox[i] == add(mult_log(0x2, square(i)), 0x3);
+    test &= sbox[i] == add(mult(0x2, square(i)), 0x3);
   }
   printf("Test buildSbox... %s\n", test?"OK":"KO");
 

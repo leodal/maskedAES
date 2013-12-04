@@ -101,7 +101,7 @@ void matrixProduct(byte vector[LINEAR_SIZE], byte result[LINEAR_SIZE]) {
   for(i = 0; i < LINEAR_SIZE; i++) {
     TMP_ZONE[0] = 0;
     for(j = 0; j < LINEAR_SIZE; j++) {
-      TMP_ZONE[0] ^= mult_log(LINEAR[i*LINEAR_SIZE+j], vector[j]);
+      TMP_ZONE[0] ^= mult(LINEAR[i*LINEAR_SIZE+j], vector[j]);
     }
     result[i] = TMP_ZONE[0];
   }
@@ -111,8 +111,8 @@ byte evalSbox(byte value) {
   int i;
   byte x = 1, res = 0;
   for(i = 0; i < 256; i++) {
-    res ^= mult_log(SBOX[i], x);
-    x = mult_log(x, value);
+    res ^= mult(SBOX[i], x);
+    x = mult(x, value);
   }
   return res;
 }

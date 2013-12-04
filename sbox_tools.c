@@ -10,8 +10,8 @@ byte evalPolySbox(byte polynomial[256], byte x) {
   byte accu = polynomial[0];
   byte pow = 0x1;
   for(i = 1; i < 256; i++) {
-    pow = mult_log(pow, x);
-    accu ^= mult_log(polynomial[i], pow);
+    pow = mult(pow, x);
+    accu ^= mult(polynomial[i], pow);
   }
   return accu;
 }
@@ -50,8 +50,8 @@ void polyProduct(byte polyDegD[], byte polyDeg1[], byte result[], int d) {
   int i;
   result[0] = 0;
   for(i = 0; i < d; i++) {
-    result[i+1] = mult_log(polyDeg1[1], polyDegD[i]);
-    result[i]  ^= mult_log(polyDeg1[0], polyDegD[i]);
+    result[i+1] = mult(polyDeg1[1], polyDegD[i]);
+    result[i]  ^= mult(polyDeg1[0], polyDegD[i]);
   }
 }
 
@@ -64,7 +64,7 @@ void polyProduct(byte polyDegD[], byte polyDeg1[], byte result[], int d) {
 void polyScalMult(byte poly[], byte a, int d) {
   int i;
   for(i = 0; i <= d; i++) {
-    poly[i] = mult_log(poly[i], a);
+    poly[i] = mult(poly[i], a);
   }
 }
 
@@ -118,7 +118,7 @@ void lagrange(byte table[], byte result[], int d) {
 	}
 	printf("\b\b  \n");
 #endif
- 	a = mult_log(i ^ j, a);
+ 	a = mult(i ^ j, a);
  	polyProduct(lagrangePoly, polyDeg1, tmpPoly, d+1);
 	for(k = 0; k < d+1; k++) {
 	  lagrangePoly[k] = tmpPoly[k];
@@ -139,7 +139,7 @@ void lagrange(byte table[], byte result[], int d) {
       }
     }
     a = inverse(a);
-    a = mult_log(table[i], a);
+    a = mult(table[i], a);
     polyScalMult(lagrangePoly, a, d);
     polyAdd(lagrangePoly, result, result, d);
   }

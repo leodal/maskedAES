@@ -43,22 +43,22 @@ int main() {
     printf("%d ", x[i]);
   }
   printf("]\n");
-/*   expected[0] = add(mult_log(0x3, 0xff^mult_log(0xfe, 0xb)), mult_log(0x4, 0xff^mult_log(0xfe, 0x9))); */
-/*   expected[1] = add(mult_log(0x5, 0xff^mult_log(0xfe, 0xb)), mult_log(0x6, 0xff^mult_log(0xfe, 0x9))); */
+/*   expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0xb)), mult(0x4, 0xff^mult(0xfe, 0x9))); */
+/*   expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0xb)), mult(0x6, 0xff^mult(0xfe, 0x9))); */
 /*   printf("Résultat attendu : [ "); */
 /*   for(i = 0; i < LINEAR_SIZE ; i++) { */
 /*     printf("%#2.2x ", expected[i]); */
 /*   } */
 /*   printf("]\n"); */
-/*   expected[0] = add(mult_log(0x3, 0xff^mult_log(0xfe, 0x39)), mult_log(0x4, 0xff^mult_log(0xfe, 0x11))); */
-/*   expected[1] = add(mult_log(0x5, 0xff^mult_log(0xfe, 0x39)), mult_log(0x6, 0xff^mult_log(0xfe, 0x11))); */
+/*   expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x39)), mult(0x4, 0xff^mult(0xfe, 0x11))); */
+/*   expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x39)), mult(0x6, 0xff^mult(0xfe, 0x11))); */
 /*   printf("Résultat attendu : [ "); */
 /*   for(i = 0; i < LINEAR_SIZE ; i++) { */
 /*     printf("%#2.2x ", expected[i]); */
 /*   } */
 /*   printf("]\n"); */
-/*   expected[0] = add(mult_log(0x3, 0xf), mult_log(0x4, 0xbb)); */
-/*   expected[1] = add(mult_log(0x5, 0xf), mult_log(0x6, 0xbb)); */
+/*   expected[0] = add(mult(0x3, 0xf), mult(0x4, 0xbb)); */
+/*   expected[1] = add(mult(0x5, 0xf), mult(0x6, 0xbb)); */
 /*   printf("Résultat attendu : [ "); */
 /*   for(i = 0; i < LINEAR_SIZE ; i++) { */
 /*     printf("%#2.2x ", expected[i]); */
@@ -67,8 +67,8 @@ int main() {
   printf("Chargement de l'algo :\n");
   loadAESlike(linear, Sbox);
   printf("Test de la Sbox :\n");
-  expected[0] = 0xff^mult_log(0xfe, 0x1);
-  expected[1] = 0xff^mult_log(0xfe, 0x2);  
+  expected[0] = 0xff^mult(0xfe, 0x1);
+  expected[1] = 0xff^mult(0xfe, 0x2);  
   for(i = 0; i < LINEAR_SIZE ; i++) {
     y[i] = evalSbox(x[i]);
     printf("Sbox(%#2.2x) = %#2.2x\n", x[i], evalSbox(x[i]));
@@ -90,15 +90,15 @@ int main() {
   printf("Chargement de la clef en mémoire :\n");
   loadKey(key);
 
-  expected[0] = add(mult_log(0x3, 0xff^mult_log(0xfe, 0x1)), mult_log(0x4, 0xff^mult_log(0xfe, 0x2)));
-  expected[1] = add(mult_log(0x5, 0xff^mult_log(0xfe, 0x1)), mult_log(0x6, 0xff^mult_log(0xfe, 0x2)));
+  expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x1)), mult(0x4, 0xff^mult(0xfe, 0x2)));
+  expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x1)), mult(0x6, 0xff^mult(0xfe, 0x2)));
   printf("Résultat attendu : [ ");
   for(i = 0; i < LINEAR_SIZE ; i++) {
     printf("%#2.2x ", expected[i]);
   }
   printf("]\n");
-  expected[0] = add(mult_log(0x3, 0xff^mult_log(0xfe, 0x63)), mult_log(0x4, 0xff^mult_log(0xfe, 0x55)));
-  expected[1] = add(mult_log(0x5, 0xff^mult_log(0xfe, 0x63)), mult_log(0x6, 0xff^mult_log(0xfe, 0x55)));
+  expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x63)), mult(0x4, 0xff^mult(0xfe, 0x55)));
+  expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x63)), mult(0x6, 0xff^mult(0xfe, 0x55)));
   printf("Résultat attendu : [ ");
   for(i = 0; i < LINEAR_SIZE ; i++) {
     printf("%#2.2x ", expected[i]);

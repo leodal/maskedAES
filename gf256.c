@@ -5,7 +5,7 @@ byte add(byte a, byte b) {
 	return a ^ b;
 }
 
-byte mult(byte a, byte b) {
+byte mult_calc(byte a, byte b) {
   byte p = 0;
   unsigned char to_reduce, i;
   for(i = 0; i < 8; i++) {
@@ -133,12 +133,12 @@ void genSquareTable() {
   printf("byte squares[256] = {\n  ");
   for(i = 0; i<256; i++) {
     if(i>0 && i %10 == 0) printf("\n  ");
-    printf("%d, ", mult_log(i, i));
+    printf("%d, ", mult(i, i));
   }
   printf("\b\b  \n};\n");
 }
 
-byte mult_log(byte a, byte b) {
+byte mult(byte a, byte b) {
   int log = log_table[a]+log_table[b];
   log %= 255;
   log = exp_table[log];
@@ -176,7 +176,7 @@ byte inverse(byte a) {
 }
 
 byte square_log(byte a) {
-  return mult_log(a, a);
+  return mult(a, a);
 }
 
 byte square(byte a) {
@@ -195,6 +195,6 @@ byte pow254(byte a) {
   byte res = 1;
   int i;
   for(i = 0; i<254; i++)
-    res = mult_log(a, res);
+    res = mult(a, res);
   return res;
 }
