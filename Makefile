@@ -12,6 +12,9 @@ aesLike_2_2.o: aesLike.c aesLike.h
 aesLike_16_10.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=16 -DNB_ROUNDS=10 -c $< -o $@
 
+bench_aesLike: aesLike_16_10.o gf256.o bench_aesLike.c
+	$(CC) $(CFLAGS) $^ -o $@
+
 test_aesLike: aesLike_2_2.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 $^ -o $@
 
@@ -22,8 +25,14 @@ aesLike_2_2_debug.o: aesLike.c aesLike.h
 aesLike_16_10_debug.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=16 -DNB_ROUNDS=10 -DDEBUG -c $< -o $@
 
+bench_aesLike_debug: aesLike_16_10.o gf256.o bench_aesLike.c
+	$(CC) $(CFLAGS) -DDEBUG $^ -o $@
+
 test_aesLike_debug: aesLike_2_2_debug.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 -DDEBUG $^ -o $@
+
+clean:	
+	-rm -f *~ *.o {bench,test}_aesLike{_debug,}
 
 # Les vieux trucs
 shares.o: shares.c shares.h
@@ -59,6 +68,3 @@ test: gf256.o shares.o secureOps.o aes.o test.o
 
 run_test: test
 	./test
-
-clean:
-	-rm -f *~ *.o test test_shares genTables test_aesLike test_secureAES test_aes test_sbox_tools
