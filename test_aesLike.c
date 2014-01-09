@@ -1,10 +1,3 @@
-#ifndef LINEAR_SIZE
-#define LINEAR_SIZE 2
-#endif
-#ifndef NB_ROUNDS
-#define NB_ROUNDS 1
-#endif
-
 #include "aesLike.h"
 #include "gf256.h"
 #include <stdio.h>
