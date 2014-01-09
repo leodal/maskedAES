@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi -DKEY_SIZE=192
+CFLAGS=-Wall -ansi
 
 SHARES=5
 
@@ -11,8 +11,14 @@ aesLike_2_2.o: aesLike.c aesLike.h
 aesLike_16_10.o: aesLike.c aesLike.h
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=16 -DNB_ROUNDS=10 -c $< -o $@
 
+secureAESlike_2_2_5.o: secureAESlike.c secureAESlike.h
+	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 -DSHARES=5 -c $< -o $@
+
+secureAESlike_16_10_5.o: secureAESlike.c secureAESlike.h
+	$(CC) $(CFLAGS) -DLINEAR_SIZE=16 -DNB_ROUNDS=10 -DSHARES=5 -c $< -o $@
+
 shares.o: shares.c shares.h
-	$(CC) $(CFLAGS) -DSHARES=$(SHARES) -c $<
+	$(CC) $(CFLAGS) -DSHARES=$(SHARES) -c $< -o $@
 
 sbox_tools.o: sbox_tools.c sbox_tools.h
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -29,7 +35,10 @@ test_sbox_tools: sbox_tools.o gf256.o test_sbox_tools.c
 test_shares: shares.o gf256.o test_shares.c
 	$(CC) $(CFLAGS) -DSHARES=$(SHARES) $^ -o $@
 
-tests: test_aesLike test_sbox_tools
+test_secureAESlike: shares.o gf256.o secureAESlike_2_2_5.o test_secureAESlike.c
+	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 -DSHARES=5 $^ -o $@
+
+tests: test_aesLike test_sbox_tools test_shares test_secureAESlike
 
 genTables: gf256.o genTables.c
 	$(CC) $(CFLAGS) $^ -o $@
@@ -50,22 +59,14 @@ bench_aesLike_debug: aesLike_16_10.o gf256.o bench_aesLike.c
 test_aesLike_debug: aesLike_2_2_debug.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 -DDEBUG $^ -o $@
 
+test_secureAESlike_debug: shares.o gf256.o secureAESlike_2_2_5.o test_secureAESlike.c
+	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 -DSHARES=5 -DDEBUG $^ -o $@
+
 clean:	
-	-rm -f *~ *.o {bench,test}_aesLike{_debug,} test_sbox_tools{_debug,} genTables
+	-rm -f *~ *.o {bench,test}_aesLike{_debug,} test_sbox_tools{_debug,} genTables test_secureAESlike{_debug,} test_shares
 
 # Les vieux trucs
 
-secureAESlike.o: secureAESlike.c secureAESlike.h
-	$(CC) $(CFLAGS) -DSHARES=$(SHARES) -DNB_ROUNDS=2 -c $<
-
-test_secureAES: gf256.o shares.o secureAESlike.o test_secureAES.c
-	$(CC) $(CFLAGS) -DNB_ROUNDS=$(ROUNDS) $^ -o $@
-
-test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c
+test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c 
 	$(CC) $(CFLAGS) $^ -o $@
 
-test: gf256.o shares.o secureOps.o aes.o test.o
-	$(CC) $(CFLAGS) $^ -o $@
-
-run_test: test
-	./test
