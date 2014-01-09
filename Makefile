@@ -18,11 +18,11 @@ sbox_tools.o: sbox_tools.c sbox_tools.h
 bench_aesLike: aesLike_16_10.o gf256.o bench_aesLike.c
 	$(CC) $(CFLAGS) $^ -o $@
 
-test_aesLike: aesLike_2_2.o gf256.o test_aesLike.c
+test_aesLike: aesLike_2_2.o sbox_tools.o gf256.o test_aesLike.c
 	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 $^ -o $@
 
-test_sbox_tools: sbox_tools.o test_sbox_tools.c
-	$(CC) $(CFLAGS) -DLINEAR_SIZE=2 -DNB_ROUNDS=2 $^ -o $@
+test_sbox_tools: sbox_tools.o gf256.o test_sbox_tools.c
+	$(CC) $(CFLAGS) $^ -o $@
 
 # Version debug (messages de traçage activés, en fait)
 aesLike_2_2_debug.o: aesLike.c aesLike.h
@@ -64,9 +64,6 @@ test_shares: shares.o gf256.o test_shares.c
 	$(CC) $(CFLAGS) -DSHARES=$(SHARES) $^ -o $@
 
 test_secureOps: gf256.o shares.o secureOps.o test_secureOps.c
-	$(CC) $(CFLAGS) $^ -o $@
-
-test_sbox_tools: gf256.o sbox_tools.o test_sbox_tools.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 test: gf256.o shares.o secureOps.o aes.o test.o

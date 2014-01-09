@@ -19,5 +19,6 @@ void polyScalMult(byte poly[], byte a, int d);
 void polyAdd(byte poly1[], byte poly2[], byte result[], int d);
 byte evalPolySbox(byte polynomial[256], byte x);
 void lagrange(byte table[], byte result[], int d);
+void revertTab(byte tab[], int length);
 #endif
 

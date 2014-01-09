@@ -159,6 +159,7 @@ int main() {
   printf("\b\b} \n");
   
   lagrange(sbox, polySbox, 2);
+  revertTab(polySbox, 256);
   printf("PolySbox(X) = ");
   isZero = test = 1;
   for(i = 0; i < 3; i++) {

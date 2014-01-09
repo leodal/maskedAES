@@ -1,5 +1,6 @@
 #include "aesLike.h"
 #include "gf256.h"
+#include "sbox_tools.h"
 #include <stdio.h>
 
 #define testPP(test)  (test ? "OK" : "KO")
@@ -7,7 +8,7 @@
 int main() {
   int i, j, passed;
   byte linear[LINEAR_SIZE][LINEAR_SIZE];
-  byte Sbox[256];
+  byte Sbox[256], Sbox_poly[256];
   byte x[LINEAR_SIZE], y[LINEAR_SIZE], expected[LINEAR_SIZE];
   byte key[LINEAR_SIZE*(NB_ROUNDS+1)];
   printf("##############################\n");
@@ -26,9 +27,12 @@ int main() {
     printf("]\n");
   }
   printf("Sbox mise à 0xff+0xfe*x pour l'instant\n");
-  Sbox[0] = 0xff; Sbox[1] = 0xfe;
+  Sbox_poly[0] = 0xff; Sbox_poly[1] = 0xfe;
   for(i=2; i<256; i++)
     Sbox[i] = 0;
+  revertTab(Sbox_poly, 256);
+  buildSbox(Sbox_poly, Sbox);
+
   printf("définition du texte clair :");
   x[0] = 0x1; x[1] = 0x2;
   printf("[ ");
