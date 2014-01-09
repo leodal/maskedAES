@@ -113,6 +113,9 @@ int main() {
   }
   if(isZero) printf("0\n");
   else printf("\b\b\b  \n");
+
+  revertTab(polySbox, 256);
+
   printf("PolySbox(0) = %#2.2x\n", evalPolySbox(polySbox, 0));
   printf("PolySbox(1) = %#2.2x\n", evalPolySbox(polySbox, 1));
   test = 1;

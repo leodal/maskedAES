@@ -108,19 +108,13 @@ void matrixProduct(byte vector[LINEAR_SIZE], byte result[LINEAR_SIZE]) {
 }
 
 byte evalSbox(byte value) {
-  int i;
-  byte x = 1, res = 0;
-  for(i = 0; i < 256; i++) {
-    res ^= mult(SBOX[i], x);
-    x = mult(x, value);
-  }
-  return res;
+  return SBOX[value];
 }
 
 void applySbox(byte vector[LINEAR_SIZE]) {
   int i;
   for(i = 0; i < LINEAR_SIZE; i++)
-    vector[i] = evalSbox(vector[i]);
+    vector[i] = SBOX[vector[i]];
 }
 
 void addRoundKey(byte vector[LINEAR_SIZE], int round) {

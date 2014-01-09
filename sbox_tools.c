@@ -3,21 +3,30 @@
 #include <stdio.h>
 
 /**
- * Given a polynomial P in GF(256)[x] (low degrees at first), evaluate P(x)
+ * Given a polynomial P in GF(256)[x] (high degrees at first), evaluate P(x)
  */
 byte evalPolySbox(byte polynomial[256], byte x) {
   int i;
   byte accu = polynomial[0];
-  byte pow = 0x1;
   for(i = 1; i < 256; i++) {
-    pow = mult(pow, x);
-    accu ^= mult(polynomial[i], pow);
+    accu = mult(accu, x);
+    accu ^= polynomial[i];
   }
   return accu;
 }
 
+void revertTab(byte tab[], int length) {
+  byte tmp;
+  int i, j;
+  for(i=0, j=length-1; i < j; i++, j--) {
+    tmp = tab[i];
+    tab[i] = tab[j];
+    tab[j] = tmp;
+  }
+}
+
 /**
- * Given a Sbox in polynomial form, print Sbox table
+ * Given a Sbox in polynomial build the Sbox
  */
 void buildSbox(byte polynomial[256], byte sbox[256]) {
   int i;
@@ -71,7 +80,7 @@ void polyScalMult(byte poly[], byte a, int d) {
 /**
  * poly1  : polynome de degré d
  * poly2  : polynome de degré d
- * result : polynome de degré d, produit de poly1 et poly2
+ * result : polynome de degré d, somme de poly1 et poly2
  */
 void polyAdd(byte poly1[], byte poly2[], byte result[], int d) {
   int i;
@@ -147,6 +156,7 @@ void lagrange(byte table[], byte result[], int d) {
 
 void buildPolySbox(byte sbox[256], byte polySbox[256]) {
   lagrange(sbox, polySbox, 255);
+  revertTab(polySbox, 256);
 }
 
 void printPolySbox(byte sbox[256]) {
@@ -154,8 +164,8 @@ void printPolySbox(byte sbox[256]) {
   byte polySbox[256];
   buildPolySbox(sbox, polySbox);
   printf("byte polySbox[256] = {");
-  for(i = 255; i >= 0; i--) {
-    if((255 - i) %10 == 0) printf("\n  ");
+  for(i = 0; i < 256; i++) {
+    if(i %10 == 0) printf("\n  ");
     printf("%#2.2x, ", polySbox[i]);
   }
   printf("\b\b \n}\n");
