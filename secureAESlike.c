@@ -40,23 +40,6 @@ void displayWorkZone() {
 }
 #endif
 
-/* void secSbox(byte x[SHARES]) { */
-/*   /\* xj initialized to 1 *\/ */
-/*   expand(1, TWZ_ADDR); */
-/*   /\* sum is initialized to 0 *\/ */
-/*   expand(0, TWZ_ADDR+SHARES); */
-/*   for(j = 0; j < 256; j++) { */
-/*     /\* tmp = s * xj *\/ */
-/*     secMult(TWZ_ADDR, SBOX_ADDR+j*SHARES, TWZ_ADDR+2*SHARES); */
-/*     /\* accu += tmp *\/ */
-/*     secAdd(TWZ_ADDR + 2*SHARES, TWZ_ADDR + SHARES, TWZ_ADDR + SHARES); */
-/*     /\* xj = xj * x ( = x ^j) *\/ */
-/*     secMult(TWZ_ADDR, x, TWZ_ADDR); */
-/*   } */
-/*   for(j = 0; j < SHARES; j++) */
-/*     x[j] = (TWZ_ADDR + SHARES)[j]; */
-/* } */
-
 void secSbox(byte x[SHARES]) {
   int i;
   /* accu = *TWZ = sbox[0] = s_255 */
