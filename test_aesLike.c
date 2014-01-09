@@ -36,27 +36,6 @@ int main() {
     printf("%d ", x[i]);
   }
   printf("]\n");
-/*   expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0xb)), mult(0x4, 0xff^mult(0xfe, 0x9))); */
-/*   expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0xb)), mult(0x6, 0xff^mult(0xfe, 0x9))); */
-/*   printf("Résultat attendu : [ "); */
-/*   for(i = 0; i < LINEAR_SIZE ; i++) { */
-/*     printf("%#2.2x ", expected[i]); */
-/*   } */
-/*   printf("]\n"); */
-/*   expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x39)), mult(0x4, 0xff^mult(0xfe, 0x11))); */
-/*   expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x39)), mult(0x6, 0xff^mult(0xfe, 0x11))); */
-/*   printf("Résultat attendu : [ "); */
-/*   for(i = 0; i < LINEAR_SIZE ; i++) { */
-/*     printf("%#2.2x ", expected[i]); */
-/*   } */
-/*   printf("]\n"); */
-/*   expected[0] = add(mult(0x3, 0xf), mult(0x4, 0xbb)); */
-/*   expected[1] = add(mult(0x5, 0xf), mult(0x6, 0xbb)); */
-/*   printf("Résultat attendu : [ "); */
-/*   for(i = 0; i < LINEAR_SIZE ; i++) { */
-/*     printf("%#2.2x ", expected[i]); */
-/*   } */
-/*   printf("]\n"); */
   printf("Chargement de l'algo :\n");
   loadAESlike(linear, Sbox);
   printf("Test de la Sbox :\n");
