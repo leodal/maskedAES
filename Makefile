@@ -33,7 +33,7 @@ sbox_tools.o: sbox_tools.c sbox_tools.h
 
 # Création du programme de benchmark sur les mêmes entrées
 # (testé sur amd64)
-bench_aesLikes: aesLike_16_10.o sbox_tools.o secureAESlike_16_10_5.o shares_5.o gf256.o bench_aesLike.c
+bench_aesLikes: aesLike_16_10.o sbox_tools.o secureAESlike_16_10_5.o shares_5.o gf256.o bench_aesLikes.c
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Les tests de validité (pas franchement unitaires)
@@ -55,6 +55,8 @@ run_%: %
 	./$^
 
 tests: test_aesLike test_sbox_tools test_shares test_secureAESlike
+
+exec_tests: run_test_shares run_test_sbox_tools run_test_aesLike run_test_secureAESlike
 
 # génération des tables pour gf256
 genTables: gf256.o genTables.c
