@@ -1,4 +1,6 @@
 #include "aesLike.h"
+#include "sbox_tools.h"
+#include "secureAESlike.h"
 #include "gf256.h"
 #include <stdio.h>
 
@@ -8,11 +10,11 @@
 #define testPP(test)  (test ? "OK" : "KO")
 
 int main() {
-  int i, j/*, passed*/;
+  int i, j, eg;
   byte linear[LINEAR_SIZE][LINEAR_SIZE];
-  byte Sbox[256];
+  byte Sbox[256], polySbox[256];
   byte key[LINEAR_SIZE*(NB_ROUNDS+1)];
-  byte x[LINEAR_SIZE], y[LINEAR_SIZE];
+  byte x[LINEAR_SIZE], y[LINEAR_SIZE], r[LINEAR_SIZE];
 
   byte rpool[256];
   double duration;
@@ -69,9 +71,16 @@ int main() {
     printf("%#2.2x ", key[i]);
   }
   printf("\n");
-  printf("Chargement de l'algorithme\n");
+  printf("Chargement des algorithmes\n");
+  printf("\tAES-like\n");
   loadAESlike(linear, Sbox);
   loadKey(key);
+  printf("\tVersion secure\n");
+  printf("\t\tTraduction de la sbox\n");
+  buildPolySbox(Sbox, polySbox);
+  loadSecureAES(linear, polySbox);
+  setKey(key);
+
   printf("Génération d'un clair :\n");
   for(i=0; i < LINEAR_SIZE; i++) {
     x[i] = rand();
@@ -79,10 +88,25 @@ int main() {
   }
   printf("\n");
   
-  printf("Exécution de 1000 chiffrements");
+  printf("Exécution de 1000 chiffrements \"normaux\"");
   start = clock();
   for(i = 0; i < 1000; i++)
     aesLike(x, y);
+  duration = (double)(clock()-start)/(double)CLOCKS_PER_SEC;
+  printf("\nTemps total : %.2f seconde(s)\n", duration);
+
+  /* Un tour pour rien, pour charger les données */
+  printf("Exécution de 1000 chiffrements \"secure\"");
+  eg = 1;
+  for(i =0; i < LINEAR_SIZE; i++)
+    eg &= y[i] == r[i];
+  printf("\nMême résultat ? %s", eg?"Oui":"Non");
+  secureAES(x, r);
+  start = clock();
+  for(i = 0; i < 1000; i++)
+    runSecureAES();
+  /* aesLike(x, y); */
+  
   duration = (double)(clock()-start)/(double)CLOCKS_PER_SEC;
   printf("\nTemps total : %.2f seconde(s)\n", duration);
 }
