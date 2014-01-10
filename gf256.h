@@ -1,3 +1,5 @@
+/* Opération dans le corps à 256 éléments décrit dans la norme AES */
+/* Les opération multiplicatives sont tabulées (tables de log et de carrés + puisance 4) */
 #ifndef __FIELD__
 #define __FIELD__
 
@@ -16,6 +18,9 @@ byte pow4(byte a);
 byte pow16(byte a);
 byte pow254(byte a);
 
+/* Génération de tables */
+void genExpLogTables(byte g);
 void genMaskTable();
 void genSquareTable();
+void genPow4Table();
 #endif
