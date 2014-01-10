@@ -89,9 +89,9 @@ void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte sbox[256]) {
 #endif
 }
 
-void setKey(byte key[LINEAR_SIZE*NB_ROUNDS]) {
+void setKey(byte key[LINEAR_SIZE*(NB_ROUNDS+1)]) {
   int i;
-  for(i = 0; i < LINEAR_SIZE*NB_ROUNDS; i++) {
+  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++) {
     expand(key[i], KEY_ADDR + i*SHARES);
   }
 }
@@ -162,14 +162,25 @@ void runSecureAES() {
   }
 }
 
-void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]) {
+void setClearText(byte x[LINEAR_SIZE]) {
   int i;
-#ifdef DEBUG
-  printf("Chargement des données...\n");
-#endif
   for(i = 0; i < LINEAR_SIZE; i++) {
     expand(x[i] , (CT_ADDR+i*SHARES));
   }
+}
+
+void getCipherText(byte r[LINEAR_SIZE]) {
+  int i;
+  for(i = 0; i < LINEAR_SIZE; i++) {  
+    r[i] = collapse(ET_ADDR+i*SHARES);
+  }
+}
+
+void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]) {
+#ifdef DEBUG
+  printf("Chargement des données...\n");
+#endif
+  setClearText(x);
 #ifdef DEBUG
   displayWorkZone();
 #endif
@@ -178,9 +189,7 @@ void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]) {
   printf("Récupération du résultat :\n");
   displayWorkZone();
 #endif
-  for(i = 0; i < LINEAR_SIZE; i++) {  
-    r[i] = collapse(ET_ADDR+i*SHARES);
-  }
+  getCipherText(r);
 #ifdef DEBUG
   displayWorkZone();
 #endif

@@ -21,8 +21,11 @@ typedef unsigned char byte;
 
 void loadSecureAES(byte linear[LINEAR_SIZE][LINEAR_SIZE], byte sbox[256]);
 void setKey(byte key[LINEAR_SIZE*(NB_ROUNDS+1)]);
+
+void setClearText(byte x[LINEAR_SIZE]);
+void getCipherText(byte r[LINEAR_SIZE]);
+void runSecureAES();
 void secureAES(byte x[LINEAR_SIZE], byte r[LINEAR_SIZE]);
 
-void runSecureAES();
 void matrixProduct();
 #endif
