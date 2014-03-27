@@ -26,6 +26,7 @@ How to use
 The size of the cryptosystem, the number of round and the number of shares are defined during compilation by the respective constants LINEAR_SIZE, NB_ROUNDS and SHARES.
 
 Run all tests : make exec_tests
+
 Run benchmark : make bench_aesLikes (run a time mesure for unprotected and protected cryptosystem)
 
 Notes
