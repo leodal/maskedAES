@@ -16,7 +16,7 @@ Files
 * gf256.h and gf256.c : arithmetic operations in the AES field
 * genTables.c : generation of the tables used in gf256.{c,h}
 * aesLike.h and aesLike.c : naive implementation of the unprotected cryptosystem
-* secureAESlike.h and secureAESlike.c : implementation if the cryptosystem protecting either linear part and Sbox
+* secureAESlike.h and secureAESlike.c : implementation of the cryptosystem protecting either linear part and Sbox
 * shares.c and shares.h : operations on protected values
 * sbox_tools.h and sbox_tools.c : conversion operations for sbox for Carlet et. al. counter-mesure
 * test_*.c : tests for the above files
