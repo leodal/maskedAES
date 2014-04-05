@@ -109,4 +109,5 @@ int main() {
   
   duration = (double)(clock()-start)/(double)CLOCKS_PER_SEC;
   printf("\nTemps total : %.2f seconde(s)\n", duration);
+  exit(0);
 }

@@ -43,7 +43,7 @@ void printSbox(byte polynomial[256]) {
   printf("byte sbox[256] = {");
   for(i = 0; i < 256; i++) {
     if(i%10 == 0) printf("\n  ");
-    printf("%#02.2x, ", evalPolySbox(polynomial, i));
+    printf("%#2.2x, ", evalPolySbox(polynomial, i));
   }
   printf("\b\b \n}\n");
 }
@@ -90,7 +90,7 @@ void polyAdd(byte poly1[], byte poly2[], byte result[], int d) {
 }
 
 void lagrange(byte table[], byte result[], int d) {
-  int i, j, k, isZero;
+  int i, j, k;
   byte polyDeg1[2];
   polyDeg1[1] = 0x1;
   for(i = 0; i <= d; i++)
@@ -132,7 +132,6 @@ void lagrange(byte table[], byte result[], int d) {
 	for(k = 0; k < d+1; k++) {
 	  lagrangePoly[k] = tmpPoly[k];
 	}
-	isZero = 1;
 #ifdef DEBUG_LAGRANGE
 	printf("\t\ta = %#2.2x\n", a);
 	printf("\t\tlagrangePoly = ");
