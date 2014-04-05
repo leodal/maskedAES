@@ -8,10 +8,12 @@
 
 #include "gf256.h"
 
-/* Transformation d'une sbox de sa forme polynomiale vers sa forme standard (lookup), résultat dans le paramètre "sbox" */
+/* Transformation d'une sbox de sa forme polynomiale vers sa forme
+   standard (lookup), résultat dans le paramètre "sbox" */
 void buildSbox(byte polynomial[256], byte sbox[256]);
 
-/* Transformation d'une sbox de sa forme standard (lookup) vers  sa forme polynomiale, résultat dans le paramètre "polySbox" */
+/* Transformation d'une sbox de sa forme standard (lookup) vers sa
+   forme polynomiale, résultat dans le paramètre "polySbox" */
 void buildPolySbox(byte sbox[256], byte polySbox[256]);
 
 /*
@@ -20,7 +22,8 @@ void buildPolySbox(byte sbox[256], byte polySbox[256]);
   poly1  : polynome de degré d-1
   poly2  : polynome de degré 1
   result : polynome de degré d, produit de poly1 et poly2
-  Attention à l'odre : ici les petits degrés on les petits indices ; je considère l'inverse dans mes sbox
+  Attention à l'odre : ici les petits degrés on les petits indices ;
+  je considère l'inverse dans mes sbox
  */
 void polyProduct(byte poly1[], byte poly2[], byte result[], int d);
 /* Multiplication d'un polynôme par un scalaire */
@@ -34,7 +37,8 @@ void lagrange(byte table[], byte result[], int d);
 /* Inverse un table de length élements */
 void revertTab(byte tab[], int length);
 
-/* Transformation des sbox d'une forme à l'autre, puis affichage (sous une forme acceptable par mes programmes */
+/* Transformation des sbox d'une forme à l'autre, puis affichage (sous
+   une forme acceptable par mes programmes */
 void printSbox(byte polynomial[256]);
 void printPolySbox(byte sbox[256]);
 #endif
