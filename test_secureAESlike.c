@@ -26,11 +26,11 @@ int main() {
   secureAES(x, y);
   printf("Result :   [ ");
   for(i = 0; i<2; i++)
-    printf("%#02.2x ", y[i]);
+    printf("%#2.2x ", y[i]);
   printf("]\n");
   printf("Expected : [ ");
   for(i = 0; i<2; i++) {
-    printf("%#02.2x ", e[i]);
+    printf("%#2.2x ", e[i]);
     test &= e[i] == y[i];
   }
   printf("] ... %s\n", (test?"OK":"KO"));

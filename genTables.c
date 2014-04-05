@@ -8,4 +8,5 @@ int main() {
   genSquareTable();
   printf("\n");
   genPow4Table();
+  return 0;
 }

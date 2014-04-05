@@ -32,7 +32,7 @@ void displayWorkZone() {
   int j;
   printf("##################################\n");
   for(j = 1; j < WSIZE+1; j++) {
-    printf("%#02.2x ", workZone[j-1]);
+    printf("%#2.2x ", workZone[j-1]);
     if(j>0 && j % 12 == 0) printf("\n");
   }
   if(j-1 % 12) printf("\n");
@@ -119,7 +119,7 @@ void matrix_product() {
       x = collapse(CT_ADDR+j*SHARES);
       re = mult(m, x);
       r = collapse(TWZ_ADDR);
-      printf("Produit %d %d : %#02.2x * %#02.2x = %#02.2x =?= %#02.2x ... %s\n",
+      printf("Produit %d %d : %#2.2x * %#2.2x = %#02.2x =?= %#02.2x ... %s\n",
 	     i, j,
 	     m, x, re,
 	     r, (r == re ?"OK":"KO")

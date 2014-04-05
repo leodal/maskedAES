@@ -191,14 +191,14 @@ void genExpLogTables(byte g) {
   printf("const byte log_table[256] = {\n  ");
   for(i = 0; i<256; i++) {
     if(i>0 && i %10 == 0) printf("\n  ");
-    printf("%#02.2x, ", log[i]);
+    printf("%#2.2x, ", log[i]);
   }
   printf("\b\b  \n};\n\n");
 
   printf("const byte exp_table[256] = {\n  ");
   for(i = 0; i<256; i++) {
     if(i>0 && i %10 == 0) printf("\n  ");
-    printf("%#02.2x, ", exp[i]);
+    printf("%#2.2x, ", exp[i]);
   }
   printf("\b\b  \n};\n\n");
 }

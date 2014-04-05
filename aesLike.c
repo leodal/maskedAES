@@ -29,7 +29,7 @@ void displayWorkZone() {
   printf("##################################\n");
   printf("DATA_SIZE %d\n", DATA_SIZE);
   for(j = 1; j < DATA_SIZE+1; j++) {
-    printf("%#02.2x ", workZone[j-1]);
+    printf("%#2.2x ", workZone[j-1]);
     if(j>0 && j % 12 == 0) printf("\n");
   }
   if(j-1 % 12) printf("\n");
