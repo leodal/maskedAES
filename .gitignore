@@ -4,3 +4,6 @@ genTables
 test_aesLike
 test_secureAES
 test_aes
+test_sbox_tools
+test_secureAESlike
+bench_aesLikes

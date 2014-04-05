@@ -3,7 +3,7 @@ CFLAGS=-Wall -ansi
 
 SHARES=5
 
-all: tests bench_aesLike genTables
+all: tests bench_aesLikes genTables
 
 # Compilation de l'AES-like avec les paramètres nécessaires pour nos programmes
 # matrice 2x2, 2 tours
@@ -72,7 +72,7 @@ aesLike_16_10_debug.o: aesLike.c aesLike.h
 sbox_tools_debug.o: sbox_tools.c sbox_tools.h
 	$(CC) $(CFLAGS) -DDEBUG_LAGRANGE -c $< -o $@
 
-bench_aesLike_debug: aesLike_16_10.o gf256.o bench_aesLike.c
+bench_aesLikes_debug: aesLike_16_10.o gf256.o bench_aesLikes.c
 	$(CC) $(CFLAGS) -DDEBUG $^ -o $@
 
 test_aesLike_debug: aesLike_2_2_debug.o gf256.o test_aesLike.c
@@ -83,4 +83,4 @@ test_secureAESlike_debug: shares_5.o gf256.o secureAESlike_2_2_5.o test_secureAE
 
 # nettoyage du résultat
 clean:	
-	-rm -f *~ *.o {bench,test}_aesLike{_debug,} test_sbox_tools{_debug,} genTables test_secureAESlike{_debug,} test_shares
+	-rm -f *~ *.o {bench,test}_aesLike{_debug,,s,s-debug} test_sbox_tools{_debug,} genTables test_secureAESlike{_debug,} test_shares
