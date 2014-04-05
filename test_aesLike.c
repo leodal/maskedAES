@@ -26,10 +26,13 @@ int main() {
     }
     printf("]\n");
   }
-  printf("Sbox mise à 0xff+0xfe*x pour l'instant\n");
+  printf("Sbox mise à 0xff+0xfe*x\n");
+  for(i=2; i<256; i++)
+    Sbox_poly[i] = 0;
   Sbox_poly[0] = 0xff; Sbox_poly[1] = 0xfe;
   for(i=2; i<256; i++)
     Sbox[i] = 0;
+  /* Formatage de la Sbox pour conversion puis conversion*/
   revertTab(Sbox_poly, 256);
   buildSbox(Sbox_poly, Sbox);
 
@@ -47,7 +50,6 @@ int main() {
   expected[1] = 0xff^mult(0xfe, 0x2);  
   for(i = 0; i < LINEAR_SIZE ; i++) {
     y[i] = evalSbox(x[i]);
-    printf("Sbox(%#2.2x) = %#2.2x\n", x[i], evalSbox(x[i]));
   }
   printf("Résultat attendu : [ ");
   for(i = 0; i < LINEAR_SIZE ; i++) {
