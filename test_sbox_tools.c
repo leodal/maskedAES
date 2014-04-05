@@ -49,7 +49,7 @@ int main() {
       printf("%#2.2x * X^%d + ", expected[i], i);
     test &= expected[i] == result[i];
   }
-  printf("\b\b\b  \nTest... %s\n", test?"OK":"KO");
+  printf("\b\b\b  \nTest product... %s\n", test?"OK":"KO");
 
   polyProduct(poly1, poly2, poly1, 5);
 
@@ -65,8 +65,9 @@ int main() {
       printf("%#2.2x * X^%d + ", expected[i], i);
     test &= expected[i] == poly1[i];
   }
-  printf("\b\b\b  \nTest... %s\n", test?"OK":"KO");
+  printf("\b\b\b  \nTest product, result in one member... %s\n", test?"OK":"KO");
 
+  /*
   printf("0x5 * P1 * P2 = ");
   polyScalMult(result, 0x5, 5);
   expected[0] = 0x5; expected[1] = 0xf; expected[2] = 0xa;
@@ -189,4 +190,6 @@ int main() {
   }
   printf("Test buildPolySbox... %s\n", test?"OK":"KO");
   printPolySbox(sbox);
+
+  */
 }
