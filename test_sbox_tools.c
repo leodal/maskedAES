@@ -164,7 +164,6 @@ int main() {
       isZero = 0;
     }
     test &= polySbox[i] == expected[i];
-    printf("\n// %#2.2x =?= %#2.2x : %s => %s\n", polySbox[i], expected[i], (polySbox[i] == expected[i]?"true":"false"), (test?"true":"false"));
   }
   if(isZero) printf("0\n");
   else printf("\b\b\b  \n");
