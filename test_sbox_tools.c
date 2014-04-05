@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main() {
-  int i, test, isZero;
+  int i, test, isZero, test_all;
   byte poly1[5];
   byte poly2[2];
   byte result[6], expected[256];
@@ -50,6 +50,7 @@ int main() {
     test &= expected[i] == result[i];
   }
   printf("\b\b\b  \nTest product... %s\n", test?"OK":"KO");
+  test_all = test;
 
   printf("P1 = ");
   for(i = 0; i < 5; i++) {
@@ -63,7 +64,6 @@ int main() {
     if(poly2[i] != 0)
       printf("%#2.2x * X^%d + ", poly2[i], i);
   printf("\b\b\b  \n");
-  polyProduct(poly1, poly2, poly1, 5);
 
   printf("0x5 * P1 * P2 = ");
   polyScalMult(result, 0x5, 5);
@@ -82,6 +82,7 @@ int main() {
     test &= expected[i] == result[i];
   }
   printf("\b\b\b  \nTest scalar product... %s\n", test?"OK":"KO");
+  test_all &= test;
   
   printf("0x5 * P1 * P2 +  0x5 * P1 * P2  = ");
   polyAdd(result, result, result, 5);
@@ -100,6 +101,7 @@ int main() {
     test &= 0 == result[i];
   }
   printf("Test addition... %s\n", test?"OK":"KO");
+  test_all &= test;
 
   isZero = 1;
   printf("PolySbox(X) = ");
@@ -121,6 +123,7 @@ int main() {
     test &= evalPolySbox(polySbox, i) == add(mult(0x2, square(i)), 0x3);
   }
   printf("Test evalPolySbox... %s\n", test?"OK":"KO");
+  test_all &= test;
   
   buildSbox(polySbox, sbox);
   test = 1;
@@ -128,6 +131,7 @@ int main() {
     test &= sbox[i] == add(mult(0x2, square(i)), 0x3);
   }
   printf("Test buildSbox... %s\n", test?"OK":"KO");
+  test_all &= test;
 
   for(i = 0; i < 256; i++) {
     expected[i] = 0;
@@ -168,6 +172,7 @@ int main() {
   if(isZero) printf("0\n");
   else printf("\b\b\b  \n");
   printf("Test Lagrange... %s\n", test?"OK":"KO");
+  test_all &= test;
 
   buildPolySbox(sbox, polySbox);
   test = 1;
@@ -183,6 +188,11 @@ int main() {
   for(i = 0; i < 256; i++) {
     test &= sbox[i] == evalPolySbox(polySbox, i);
   }
-  printf("Test buildPolySbox... %s\n", test?"OK":"KO");
   printPolySbox(sbox);
+  printf("Test buildPolySbox... %s\n", test?"OK":"KO");
+  test_all &= test;
+  printf("Test all... %s\n", test_all?"OK":"KO");
+
+  printf("Test Sbox Tools... %s\n", test_all?"ALL OK":"KO");
+  return !test_all;
 }
