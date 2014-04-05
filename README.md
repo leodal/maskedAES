@@ -18,7 +18,7 @@ Files
 * aesLike.h and aesLike.c : naive implementation of the unprotected cryptosystem
 * secureAESlike.h and secureAESlike.c : implementation of the cryptosystem protecting either linear part and Sbox
 * shares.c and shares.h : operations on protected values
-* sbox_tools.h and sbox_tools.c : conversion operations for sbox for Carlet et. al. counter-mesure
+* sbox_tools.h and sbox_tools.c : conversion operations for sbox in Carlet et. al. counter-mesure 
 * test_*.c : tests for the above files
 
 How to use
@@ -32,3 +32,4 @@ Run benchmark : make bench_aesLikes (run a time mesure for unprotected and prote
 Notes
 ----
 * We do not claim that in practice the implementation would be secure against a real-world attack. The implementation is only provided for illustrative purpose, and timing comparisons.
+* The implementation of the S-boxes conversions is relativly inefficient, but it should only be run once.
