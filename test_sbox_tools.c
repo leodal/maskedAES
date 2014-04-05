@@ -51,23 +51,20 @@ int main() {
   }
   printf("\b\b\b  \nTest product... %s\n", test?"OK":"KO");
 
+  printf("P1 = ");
+  for(i = 0; i < 5; i++) {
+    if(poly1[i] != 0)
+      printf("%#2.2x * X^%d + ", poly1[i], i);
+  }
+  printf("\b\b\b  \n");
+  
+  printf("P2 = ");
+  for(i = 0; i < 2; i++)
+    if(poly2[i] != 0)
+      printf("%#2.2x * X^%d + ", poly2[i], i);
+  printf("\b\b\b  \n");
   polyProduct(poly1, poly2, poly1, 5);
 
-  printf("P1 * P2, résultat dans P1 = ");
-  for(i = 0; i < 6; i++)
-    /*    if(poly1[i] != 0)*/
-      printf("%#2.2x * X^%d + ", poly1[i], i);
-  printf("\b\b\b  \n");
-  printf("Expected = ");
-  test = 1;
-  for(i = 0; i < 6; i++) {
-    if(expected[i])
-      printf("%#2.2x * X^%d + ", expected[i], i);
-    test &= expected[i] == poly1[i];
-  }
-  printf("\b\b\b  \nTest product, result in one member... %s\n", test?"OK":"KO");
-
-  /*
   printf("0x5 * P1 * P2 = ");
   polyScalMult(result, 0x5, 5);
   expected[0] = 0x5; expected[1] = 0xf; expected[2] = 0xa;
@@ -84,7 +81,7 @@ int main() {
     }
     test &= expected[i] == result[i];
   }
-  printf("\b\b\b  \nTest... %s\n", test?"OK":"KO");
+  printf("\b\b\b  \nTest scalar product... %s\n", test?"OK":"KO");
   
   printf("0x5 * P1 * P2 +  0x5 * P1 * P2  = ");
   polyAdd(result, result, result, 5);
@@ -102,7 +99,7 @@ int main() {
   for(i = 0; i < 6; i++) {
     test &= 0 == result[i];
   }
-  printf("Test... %s\n", test?"OK":"KO");
+  printf("Test addition... %s\n", test?"OK":"KO");
 
   isZero = 1;
   printf("PolySbox(X) = ");
@@ -138,6 +135,7 @@ int main() {
   }
   expected[0] = 0x4; expected[1] = 0x2; expected[2] = 0x3;
   isZero = 1;
+  
   printf("expected PolySbox(X) = ");
   for(i = 0; i < 3; i++) {
     if(expected[i]) {
@@ -147,28 +145,26 @@ int main() {
   }
   if(isZero) printf("0\n");
   else printf("\b\b\b  \n");
+  revertTab(expected, 256);
   printf("PolySbox(0) = %#2.2x\n", sbox[0] = evalPolySbox(expected, 0));
   printf("PolySbox(1) = %#2.2x\n", sbox[1] = evalPolySbox(expected, 1));
   printf("PolySbox(2) = %#2.2x\n", sbox[2] = evalPolySbox(expected, 2));
+  revertTab(expected, 256);
   printf("sbox = {");
   for(i = 0; i < 3; i++) {
-    if(sbox[i]) {
-      printf("%#2.2x, ", sbox[i]);
-      isZero = 0;
-    }
+    printf("%#2.2x, ", sbox[i]);
   }
   printf("\b\b} \n");
-  
   lagrange(sbox, polySbox, 2);
-  revertTab(polySbox, 256);
   printf("PolySbox(X) = ");
   isZero = test = 1;
   for(i = 0; i < 3; i++) {
     if(polySbox[i]) {
       printf("%#2.2x * X^%d + ", polySbox[i], i);
-      test &= polySbox[i] == expected[i];
       isZero = 0;
     }
+    test &= polySbox[i] == expected[i];
+    printf("\n// %#2.2x =?= %#2.2x : %s => %s\n", polySbox[i], expected[i], (polySbox[i] == expected[i]?"true":"false"), (test?"true":"false"));
   }
   if(isZero) printf("0\n");
   else printf("\b\b\b  \n");
@@ -190,6 +186,4 @@ int main() {
   }
   printf("Test buildPolySbox... %s\n", test?"OK":"KO");
   printPolySbox(sbox);
-
-  */
 }
