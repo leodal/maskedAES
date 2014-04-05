@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi
+CFLAGS=-Wall -Wextra -ansi
 
 SHARES=5
 
