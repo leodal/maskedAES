@@ -160,6 +160,87 @@ int main() {
   printf("%s\n", test?"OK":"KO");
   test_all &= test;
 
+  /* 3rd Test : all random */
+  printf("\n\n====== All random ============\n");
+  printf("Génération de la Sbox... ");
+  for(i=0; i < 256; i++) {
+    rpool[i] = 1;
+  }
+  for(i=0; i < 256; i++) {
+    /* TODO Change rand function */
+    byte candidate = rand();
+    if(rpool[candidate]) {
+      rpool[candidate] = 0;
+      sbox[i] = candidate;
+    } else {
+      i--;
+    }
+  }
+  printf("Fait\n");
+  /* Sbox transformation */
+  printf("Transformation de la Sbox vers une version polynomiale... ");
+  buildPolySbox(sbox, polySbox);
+  printf("Fait\n");
+  test = 1;
+  printf("Validation... ");
+  for(i = 0; i < 256; i++) {
+    test &= sbox[i] == evalPolySbox(polySbox, i);
+  }
+  printf("%s\n", test?"OK":"KO");
+  test_all &= test;
+
+  printf("Génération de la fonction linéaire :\n");
+  for(i = 0; i<2; i++) {
+    printf("[ ");
+    for(j = 0; j<2; j++) {
+      printf("%#2.2x ", lin[i][j] = rand());
+    }
+    printf("]\n");
+  }
+  printf("Génération de la clef : [ ");
+  for(j = 0; j<6; j++) {
+    printf("%#2.2x ", key[j] = rand());
+  }
+  printf("]\n");
+  printf("Génération du clair : [ ");
+  for(j = 0; j<2; j++) {
+    printf("%#2.2x ", x[j] = rand());
+  }
+  printf("]\n");
+   
+  printf("Chargement des algorithmes\n");
+  printf("\tAES-like\n");
+  loadAESlike(lin, sbox);
+  loadKey(key);
+  printf("\tVersion secure\n");
+  loadSecureAES(lin, polySbox);
+  setKey(key);
+
+    printf("Exécution des algorithmes\n");
+  printf("\tAES-like...");
+  aesLike(x, e);
+  printf("Fait\n");
+  printf("\tResult : [ ");
+  for(i = 0; i<2; i++) {
+    printf("%#2.2x ", e[i]);
+    test &= e[i] == y[i];
+  }
+  printf("]\n");
+  printf("Version secure...");
+  secureAES(x, y);
+  printf("Fait\n");
+  printf("\tResult :   [ ");
+  for(i = 0; i<2; i++)
+    printf("%#2.2x ", y[i]);
+  printf("]\n");
+  printf("Test d'égalité : ");
+  test = 1;
+  for(i = 0; i<2; i++) {
+    test &= e[i] == y[i];
+  }
+  printf("%s\n", test?"OK":"KO");
+  test_all &= test;
+
   printf("Test Secure AES-like : %s\n", test_all?"ALL OK":"KO");
   return !test_all;
 }
