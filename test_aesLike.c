@@ -7,6 +7,7 @@
 
 int main() {
   int i, j, passed;
+  byte e0, e1;
   byte linear[LINEAR_SIZE][LINEAR_SIZE];
   byte Sbox[256], Sbox_poly[256];
   byte x[LINEAR_SIZE], y[LINEAR_SIZE], expected[LINEAR_SIZE];
@@ -32,9 +33,16 @@ int main() {
   Sbox_poly[0] = 0xff; Sbox_poly[1] = 0xfe;
   for(i=2; i<256; i++)
     Sbox[i] = 0;
-  /* Formatage de la Sbox pour conversion puis conversion*/
+  /* conversion */
   revertTab(Sbox_poly, 256);
   buildSbox(Sbox_poly, Sbox);
+
+  printf("Définition de la clef : [ ");
+  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++) {
+    key[i] = i;
+    printf("%#2.2x ", key[i]);
+  }
+  printf("]\n");
 
   printf("définition du texte clair :");
   x[0] = 0x1; x[1] = 0x2;
@@ -67,16 +75,21 @@ int main() {
 
   printf("Chargement de la clef en mémoire :\n");
   loadKey(key);
+  printf("Clef : [ ");
+  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++)
+    printf("%#2.2x ", key[i]);
+  printf("]\n");
 
-  expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x1)), mult(0x4, 0xff^mult(0xfe, 0x2)));
-  expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x1)), mult(0x6, 0xff^mult(0xfe, 0x2)));
-  printf("Résultat attendu : [ ");
+  expected[0] = add(0x2, add(mult(0x3, 0xff^mult(0xfe, 0x1)), mult(0x4, 0xff^mult(0xfe, add(0x2, 0x1)))));
+  expected[1] = add(0x3, add(mult(0x5, 0xff^mult(0xfe, 0x1)), mult(0x6, 0xff^mult(0xfe, add(0x2, 0x1)))));
+  printf("Résultat attendu round 1 : [ ");
   for(i = 0; i < LINEAR_SIZE ; i++) {
     printf("%#2.2x ", expected[i]);
   }
   printf("]\n");
-  expected[0] = add(mult(0x3, 0xff^mult(0xfe, 0x63)), mult(0x4, 0xff^mult(0xfe, 0x55)));
-  expected[1] = add(mult(0x5, 0xff^mult(0xfe, 0x63)), mult(0x6, 0xff^mult(0xfe, 0x55)));
+  e0 = expected[0]; e1 = expected[1];
+  expected[0] = add(0x4, add(mult(0x3, 0xff^mult(0xfe, e0)), mult(0x4, 0xff^mult(0xfe, e1))));
+  expected[1] = add(0x5, add(mult(0x5, 0xff^mult(0xfe, e0)), mult(0x6, 0xff^mult(0xfe, e1))));
   printf("Résultat attendu : [ ");
   for(i = 0; i < LINEAR_SIZE ; i++) {
     printf("%#2.2x ", expected[i]);

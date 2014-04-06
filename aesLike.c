@@ -5,9 +5,9 @@
 #define EXTENDED_KEY_SIZE LINEAR_SIZE*(NB_ROUNDS+1)
 #define DATA_SIZE LINEAR_SIZE*LINEAR_SIZE+256+EXTENDED_KEY_SIZE+2*LINEAR_SIZE+TMP_SIZE
 
-byte workZone[DATA_SIZE];
+byte workZone_aesLike[DATA_SIZE];
 
-#define LINEAR workZone /* LINEAR_SIZE^2 bytes */
+#define LINEAR workZone_aesLike /* LINEAR_SIZE^2 bytes */
 #define SBOX (LINEAR + LINEAR_SIZE*LINEAR_SIZE) /* 256 bytes */
 #define KEY (SBOX + 256) /* EXTENDED_KEY_SIZE bytes */
 #define CT_ADDR  (KEY + EXTENDED_KEY_SIZE) /* LINEAR_SIZE bytes */
@@ -20,7 +20,7 @@ byte workZone[DATA_SIZE];
 void zeroWorkZone() {
   int j;
   for(j = 0; j < DATA_SIZE; j++) {
-    workZone[j] = 0;
+    workZone_aesLike[j] = 0;
   }
 }
 
@@ -29,7 +29,19 @@ void displayWorkZone() {
   printf("##################################\n");
   printf("DATA_SIZE %d\n", DATA_SIZE);
   for(j = 1; j < DATA_SIZE+1; j++) {
-    printf("%#2.2x ", workZone[j-1]);
+    printf("%#2.2x ", workZone_aesLike[j-1]);
+    if(j>0 && j % 12 == 0) printf("\n");
+  }
+  if(j-1 % 12) printf("\n");
+  printf("##################################\n");
+}
+
+void displayPartialWorkZone(byte * start) {
+  int j;
+  printf("##################################\n");
+  printf("DATA_SIZE %d\n", DATA_SIZE);
+  for(j = start-workZone_aesLike+1; j < DATA_SIZE+1; j++) {
+    printf("%#2.2x ", workZone_aesLike[j-1]);
     if(j>0 && j % 12 == 0) printf("\n");
   }
   if(j-1 % 12) printf("\n");
@@ -44,7 +56,7 @@ void loadLinearPart(byte linear[LINEAR_SIZE][LINEAR_SIZE]) {
 #endif
   for(i = 0; i < LINEAR_SIZE; i++) {
     for(j = 0; j < LINEAR_SIZE; j++) {
-      workZone[i*LINEAR_SIZE+j] = linear[i][j];
+      workZone_aesLike[i*LINEAR_SIZE+j] = linear[i][j];
     }
   }
 #ifdef DEBUG
@@ -80,8 +92,10 @@ void loadKey(byte key[LINEAR_SIZE*(NB_ROUNDS+1)]) {
 #ifdef DEBUG
   printf("Chargement de la clef : \n");
 #endif
-  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++)
+  for(i = 0; i < LINEAR_SIZE*(NB_ROUNDS+1); i++) {
     KEY[i] = key[i];
+    /* printf("key[%d] = %#2.2x\n", i, KEY[i] = key[i]); */
+  }
 #ifdef DEBUG
   displayWorkZone();
 #endif  
@@ -130,21 +144,45 @@ void aesLike(byte clear[LINEAR_SIZE], byte cypher[LINEAR_SIZE]) {
 #endif
   loadClearText(clear);
   addRoundKey(CT_ADDR, 0);
+#ifdef DEBUG
+  printf("Ajout de la première clef de ronde :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
   for(i = 0; i < NB_ROUNDS; i++) {
     if(i%2 == 0) {
       applySbox(CT_ADDR);
+#ifdef DEBUG
+  printf("Application de la Sbox sur CT_ADDR :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
       matrixProduct(CT_ADDR, ET_ADDR);
-      addRoundKey(ET_ADDR, i);
+#ifdef DEBUG
+  printf("Application du produit sur CT_ADDR, résultat dans ET_ADDR :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
+      addRoundKey(ET_ADDR, i+1);
+#ifdef DEBUG
+  printf("Ajout de la clef de ronde à ET_ADDR :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
     } else {
       applySbox(ET_ADDR);
+#ifdef DEBUG
+  printf("Application de la Sbox sur ET_ADDR :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
       matrixProduct(ET_ADDR, CT_ADDR);
-      addRoundKey(CT_ADDR, i);
+#ifdef DEBUG
+  printf("Application du produit sur CT_ADDR :\n");
+  displayPartialWorkZone(CT_ADDR);
+#endif
+      addRoundKey(CT_ADDR, i+1);
     }
-  }
 #ifdef DEBUG
   printf("i = %d (NB_ROUNDS = %d)\n", i, NB_ROUNDS);
   displayWorkZone();
 #endif
+  }
   if(i%2 == 0) {
     for(i = 0; i < LINEAR_SIZE; i++)
       cypher[i] = CT_ADDR[i];
