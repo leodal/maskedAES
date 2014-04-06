@@ -1,5 +1,8 @@
 #include "sbox_tools.h"
+
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 int main() {
   int i, test, isZero, test_all;
@@ -8,6 +11,10 @@ int main() {
   byte result[6], expected[256];
 
   byte polySbox[256], sbox[256];
+  byte rpool[256];
+
+  srand((unsigned int) time (NULL));
+
   for(i = 0; i < 256; i++)
     polySbox[i] = 0;
   polySbox[2] = 0x2;
@@ -191,7 +198,34 @@ int main() {
   printPolySbox(sbox);
   printf("Test buildPolySbox... %s\n", test?"OK":"KO");
   test_all &= test;
-  printf("Test all... %s\n", test_all?"OK":"KO");
+
+  /* Second test de buildPolySbox(Sbox, polySbox) */
+  /* Génération d'une SBox */
+  printf("Génération de la Sbox... ");
+  for(i=0; i < 256; i++) {
+    rpool[i] = 1;
+  }
+  for(i=0; i < 256; i++) {
+    /* TODO Change rand function */
+    byte candidate = rand();
+    if(rpool[candidate]) {
+      rpool[candidate] = 0;
+      sbox[i] = candidate;
+    } else {
+      i--;
+    }
+  }
+  printf(" Fait\n");
+
+  printf("Calcul de la Sbox sous forme polynomiale... ");
+  buildPolySbox(sbox, polySbox);
+  printf(" Fait\n");
+  
+  test = 1;
+  for(i = 0; i < 256; i++) {
+    test &= sbox[i] == evalPolySbox(polySbox, i);
+  }
+    printf("Test buildPolySbox... %s\n", test?"OK":"KO");
 
   printf("Test Sbox Tools... %s\n", test_all?"ALL OK":"KO");
   return !test_all;

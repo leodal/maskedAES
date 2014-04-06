@@ -26,7 +26,7 @@ void revertTab(byte tab[], int length) {
 }
 
 /**
- * Given a Sbox in polynomial build the Sbox
+ * Given a Sbox in polynomial form  (high degrees at first) build the Sbox
  */
 void buildSbox(byte polynomial[256], byte sbox[256]) {
   int i;
@@ -153,6 +153,11 @@ void lagrange(byte table[], byte result[], int d) {
   }
 }
 
+/**
+ * Build a sbox on polynomial form from a tabuled sbox
+ * sbox : input
+ * polySbox : result
+ */
 void buildPolySbox(byte sbox[256], byte polySbox[256]) {
   lagrange(sbox, polySbox, 255);
   revertTab(polySbox, 256);
@@ -170,16 +175,3 @@ void printPolySbox(byte sbox[256]) {
   printf("\b\b \n}\n");
 }
 
-/*
-int main() {
-  byte polynomial[256];
-  int i;
-
-  for(i = 0; i < 256; i++) {
-    polynomial[i] = 0;
-  }
-  polynomial[254] = 2;
-  printSbox(polynomial);
-  return 0;
-}
-*/
